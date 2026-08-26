@@ -19,11 +19,6 @@ services:
     ports:
       - "5051:8080"
 
-  frontend:
-    build: ./RoomBooking.Frontend
-    ports:
-      - "5173:80"
-
   database:
     image: mcr.microsoft.com/mssql/server:2022-latest
     environment:
