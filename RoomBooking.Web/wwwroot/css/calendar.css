@@ -13,6 +13,30 @@
     margin-bottom: 28px
 }
 
+.calendar-filters {
+    display: flex;
+    gap: 12px;
+    align-items: end;
+    margin-left: auto
+}
+
+.calendar-filters select {
+    min-width: 190px;
+    height: 52px;
+    padding: 0 42px 0 16px;
+    border: 1px solid #dce3ef;
+    border-radius: 12px;
+    background: #fff;
+    color: #52627c;
+    font: inherit;
+    font-weight: 700;
+    cursor: pointer
+}
+
+.calendar-filters select#statusFilter {
+    min-width: 150px
+}
+
 .room-calendar-top form {
     display: flex;
     flex-direction: column;
@@ -117,5 +141,15 @@
         align-items: start;
         flex-direction: column;
         gap: 22px
+    }
+
+    .calendar-filters {
+        width: 100%;
+        margin-left: 0
+    }
+
+    .calendar-filters select {
+        min-width: 0;
+        flex: 1
     }
 }
