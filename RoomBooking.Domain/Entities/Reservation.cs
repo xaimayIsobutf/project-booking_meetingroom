@@ -1,0 +1,3 @@
+using System.ComponentModel.DataAnnotations.Schema;
+namespace RoomBooking.Domain.Entities;
+public class Reservation { public int Id { get; set; } public int CompanyId { get; set; } public int MeetingRoomId { get; set; } public int UserId { get; set; } public MeetingRoom? MeetingRoom { get; set; } public User? User { get; set; } public string Subject { get; set; } = ""; [NotMapped] public string ReservedBy { get; set; } = ""; public DateTime StartAt { get; set; } public DateTime EndAt { get; set; } public int AttendeesCount { get; set; } = 1; public string Status { get; set; } = "Approved"; public DateTime CreatedAt { get; set; } = DateTime.UtcNow; }

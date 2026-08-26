@@ -1,0 +1,55 @@
+.share-page>form {
+    display: grid;
+    gap: 20px
+}
+
+.share-page>form>label {
+    display: grid;
+    gap: 8px;
+    color: #52627c;
+    font-weight: 700
+}
+
+.share-page select {
+    padding: 13px 16px;
+    border: 1px solid #dce5f0;
+    border-radius: 12px;
+    background: #fff;
+    font: inherit
+}
+
+.share-page .form-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px
+}
+
+.share-page .form-row label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 16px;
+    border: 1px solid #e4eaf3;
+    border-radius: 12px;
+    background: #f8faff
+}
+
+.share-page input[type=checkbox] {
+    accent-color: #e5008a
+}
+
+.share-page hr {
+    margin: 28px 0;
+    border: 0;
+    border-top: 1px solid #e5eaf2
+}
+
+.share-page h2 {
+    margin-bottom: 16px
+}
+
+@media(max-width:700px) {
+    .share-page {
+        padding: 22px
+    }
+}

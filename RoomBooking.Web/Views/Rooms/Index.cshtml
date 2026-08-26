@@ -1,0 +1,165 @@
+@model IEnumerable<RoomBooking.Web.Models.RoomViewModel>
+@{
+    ViewData["Title"] = "ห้องประชุม";
+}
+<style>
+    .room-name{min-width:0}.room-avatar{width:42px!important;height:42px!important;min-width:42px!important;max-width:42px!important;flex:0 0 42px!important;aspect-ratio:1;border-radius:50%;display:grid;place-items:center}.room-name>div{min-width:0}.room-owner{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .room-owner{color:#7b8ba5!important;font-size:.72rem!important;font-weight:700}.room-item.is-shared{background:#fbf8ff}
+    .room-modal {
+        display: none;
+        position: fixed;
+        inset: 0;
+        z-index: 1000;
+        background: #17203380;
+        align-items: flex-start;
+        justify-content: center;
+        padding: 70px 20px
+    }
+
+    .room-modal.open {
+        display: flex
+    }
+
+    .room-modal-card {
+        position: relative;
+        width: min(700px, 100%);
+        max-height: 90vh;
+        overflow: auto;
+        background: #fff;
+        border-radius: 18px;
+        padding: 30px;
+        box-shadow: 0 20px 60px #17203340
+    }
+
+    .modal-close {
+        position: absolute;
+        right: 18px;
+        top: 12px;
+        border: 0;
+        background: transparent;
+        font-size: 28px
+    }
+
+    .room-modal-card label {
+        display: block;
+        margin-bottom: 14px;
+        color: #52627c;
+        font-size: .9rem
+    }
+
+    .room-modal-card input,
+    .room-modal-card select {
+        display: block;
+        width: 100%;
+        box-sizing: border-box;
+        margin-top: 6px;
+        padding: 11px;
+        border: 1px solid #dce3ef;
+        border-radius: 8px;
+        font: inherit
+    }
+
+    .room-modal-card label input[type=checkbox] {
+        display: inline-block;
+        width: auto
+    }
+
+    .room-table-row {
+        font-size: .85rem !important;
+        white-space: nowrap
+    }
+
+    .room-table-row .row-actions {
+        display: flex !important;
+        flex-wrap: nowrap !important;
+        gap: 6px !important;
+        min-width: 210px !important
+    }
+</style>
+<style>
+    .room-table-head,
+    .room-table-row {
+        grid-template-columns: minmax(190px, 1.5fr) minmax(80px, .9fr) minmax(150px, 1.2fr) minmax(75px, .8fr) minmax(150px, 1.3fr) minmax(105px, 1fr) minmax(145px, 1.2fr) !important;
+        min-width: 1050px !important
+    }
+
+    .room-table-head {
+        white-space: nowrap
+    }
+
+    .room-table-row {
+        white-space: nowrap
+    }
+
+    .room-table-row .row-actions {
+        display: flex !important;
+        flex-wrap: nowrap !important;
+        gap: 6px !important;
+        white-space: nowrap !important;
+        min-width: 210px !important
+    }
+</style>
+<div class="directory-heading">
+    <div><span class="eyebrow">MEETING ROOM DIRECTORY</span>
+        <h1>Meeting room directory</h1>
+        <p>ข้อมูลห้องประชุมของบริษัท พร้อมค้นหาและกรองตามสถานะ</p>
+    </div>
+    <div class="directory-actions"><a class="outline-button" asp-controller="Reservations"
+                                          asp-action="Create">จองห้อง</a><button class="button" type="button" id="openCreateRoom">+
+        เพิ่มห้องประชุม</button></div>
+    </div>
+    <section class="panel room-list-panel">
+        <div class="directory-toolbar"><input id="roomSearch" type="search"
+                                                  placeholder="⌕ ค้นหาชื่อห้อง ตึก ชั้น หรืออุปกรณ์..." /><select id="roomFilter">
+            <option value="all">ทุกสถานะ</option>
+            <option value="active">เปิดใช้งาน</option>
+            <option value="inactive">ปิดใช้งาน</option>
+        </select></div>
+        <div class="directory-count">พบ @Model.Count() ห้องประชุม <span>ข้อมูลห้องประชุมในระบบ</span></div>
+        <div class="room-table">
+            <div class="room-table-head"><span>ห้องประชุม</span><span>ขนาดห้อง</span><span>ตึก /
+                ชั้น</span><span>รองรับ</span><span>อุปกรณ์</span><span>สถานะ</span><span>การจัดการ</span></div>
+                @foreach (var room in Model)
+                {
+                    <div class="room-table-row room-item"
+                         data-search="@room.Name @room.Building @room.Floor @room.Equipment"
+                         data-status="@(room.Available?"active":"inactive")">
+                        <div class="room-name"><span class="room-avatar">▦</span>
+                            <div><b>@room.Name</b><small>Meeting room</small><small class="room-owner">ห้องของบริษัท @room.OwnerCompanyName</small></div>
+                        </div><span>@room.RoomSize</span><span>@room.Building · @room.Floor</span><span>@room.Capacity
+                        คน</span><span class="muted">@room.Equipment</span><span><span
+                        class="status status-directory">@(room.Available?"เปิดใช้งาน":"ปิดใช้งาน")</span></span>
+                        <div class="row-actions">@if (!room.IsShared){<a class="outline-button" asp-controller="Rooms" asp-action="Share" asp-route-id="@room.Id">แชร์ห้อง</a>}<a class="outline-button" asp-controller="Reservations" asp-action="Create"
+                                                        asp-route-roomId="@room.Id">จอง</a><button type="button" class="outline-button edit-room"
+                                                                       data-id="@room.Id" data-name="@room.Name" data-size="@room.RoomSize" data-building="@room.Building"
+                                                                       data-floor="@room.Floor" data-capacity="@room.Capacity" data-equipment="@room.Equipment" data-approval="@room.RequiresApproval" data-notice="@room.BookingNoticeHours"
+                                                                       data-active="@room.Available">แก้ไข</button></div>
+                        </div>
+                    }
+                </div>
+            </section><script>document.getElementById('openCreateRoom').addEventListener('click',()=>{document.getElementById('roomNotice').value=60;document.getElementById('roomApproval').checked=false});document.querySelectorAll('.edit-room').forEach(b=>b.addEventListener('click',()=>{document.getElementById('roomNotice').value=b.dataset.notice==='1'?'60':(b.dataset.notice||'60');document.getElementById('roomApproval').checked=b.dataset.approval==='True'||b.dataset.approval==='true'}));</script>
+            <div id="roomModal" class="room-modal">
+                <div class="room-modal-card"><button type="button" class="modal-close" id="closeRoomModal">×</button>
+                    <h2 id="roomModalTitle">เพิ่มห้องประชุม</h2>
+                    <form id="roomForm" method="post"><input id="roomId" name="Id" type="hidden" value="0" /><label>ห้องประชุม<input
+                        id="roomName" name="Name" required /></label>
+                        <div class="form-row"><label>ขนาดห้องประชุม<select id="roomSize" name="RoomSize">
+                            <option>เล็ก</option>
+                            <option selected>กลาง</option>
+                            <option>ใหญ่</option>
+                        </select></label><label>ตึก<input id="roomBuilding" name="Building"
+                        ßrequired /></label><label>ชั้น<select id="roomFloor" name="Floor" required>@for(var
+                        floor = 1; floor <= 10; floor++){
+                            <option>ชั้น @floor</option>
+                        }
+                    </select></label></div>
+                    <div class="form-row"><label>รองรับ (คน)<input id="roomCapacity" name="Capacity" type="number" min="1"
+                                                                       required /></label><label>อุปกรณ์<input id="roomEquipment" name="Equipment" /></label></div>
+                        <div class="form-row"><label>จองล่วงหน้า<select id="roomNotice" name="BookingNoticeHours" required><option value="0">ไม่กำหนด</option><option value="15">15 นาที</option><option value="30">30 นาที</option><option value="60">1 ชั่วโมง</option><option value="120">2 ชั่วโมง</option></select></label><label class="check-label"><input id="roomApproval" name="RequiresApproval" type="checkbox" value="true" /> ต้องรอ Admin อนุมัติ</label></div>
+                        <label><input id="roomActive" name="Available" type="checkbox" checked /> เปิดใช้งาน</label>
+                        <div class="actions"><button type="button" class="outline-button"
+                                                         id="cancelRoomModal">ยกเลิก</button><button class="button" type="submit">บันทึก</button></div>
+                        </form>
+                    </div>
+                </div>
+                <script>const modal = document.getElementById('roomModal'), form = document.getElementById('roomForm'); function closeRoom() { modal.classList.remove('open') } document.getElementById('openCreateRoom').onclick = () => { form.action = '/Rooms/Create'; form.reset(); document.getElementById('roomId').value = '0'; document.getElementById('roomActive').checked = true; document.getElementById('roomModalTitle').textContent = 'เพิ่มห้องประชุม'; modal.classList.add('open') }; document.querySelectorAll('.edit-room').forEach(b => b.onclick = () => { const d = b.dataset; form.action = '/Rooms/Edit'; document.getElementById('roomModalTitle').textContent = 'แก้ไขห้องประชุม'; for (const [id, key] of [['roomId', 'id'], ['roomName', 'name'], ['roomSize', 'size'], ['roomBuilding', 'building'], ['roomFloor', 'floor'], ['roomCapacity', 'capacity'], ['roomEquipment', 'equipment']]) document.getElementById(id).value = d[key] || ''; document.getElementById('roomActive').checked = d.active === 'True' || d.active === 'true'; modal.classList.add('open') }); document.getElementById('closeRoomModal').onclick = closeRoom; document.getElementById('cancelRoomModal').onclick = closeRoom; modal.onclick = e => { if (e.target === modal) closeRoom() }; const rs = document.getElementById('roomSearch'), rf = document.getElementById('roomFilter'); function filterRooms() { const q = rs.value.toLowerCase(), v = rf.value; document.querySelectorAll('.room-item').forEach(x => x.style.display = (!q || x.dataset.search.toLowerCase().includes(q)) && (v === 'all' || x.dataset.status === v) ? 'grid' : 'none') } rs.oninput = filterRooms; rf.onchange = filterRooms;</script>

@@ -1,0 +1,121 @@
+.calendar-heading {
+    margin-bottom: 28px
+}
+
+.room-calendar-panel {
+    padding: 30px 34px
+}
+
+.room-calendar-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: end;
+    margin-bottom: 28px
+}
+
+.room-calendar-top form {
+    display: flex;
+    flex-direction: column;
+    gap: 9px
+}
+
+.room-calendar-top label {
+    font-size: 1.05rem;
+    font-weight: 800
+}
+
+.room-calendar-top input {
+    border: 1px solid #dce3ef;
+    border-radius: 10px;
+    padding: 13px 16px;
+    font: inherit;
+    font-weight: 700
+}
+
+.calendar-legend {
+    display: flex;
+    gap: 24px;
+    color: #718096;
+    font-weight: 700
+}
+
+.calendar-legend span {
+    display: flex;
+    align-items: center;
+    gap: 8px
+}
+
+.calendar-legend i {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    display: inline-block
+}
+
+.legend-free {
+    background: #58c8b5
+}
+
+.legend-booked {
+    background: #e88791
+}
+
+.availability-table {
+    overflow-x: auto
+}
+
+.availability-row {
+    display: grid;
+    grid-template-columns: 1.3fr repeat(4, 1fr);
+    gap: 14px;
+    align-items: center;
+    padding: 15px 0;
+    border-top: 1px solid #edf0f5;
+    min-width: 760px
+}
+
+.availability-head {
+    color: #718096;
+    font-weight: 800
+}
+
+.availability-head>div:not(:first-child) {
+    text-align: center
+}
+
+.room-cell small {
+    display: block;
+    margin-top: 5px;
+    color: #8a98a8
+}
+
+.availability-slot {
+    padding: 17px 10px;
+    border-radius: 12px;
+    text-align: center;
+    text-decoration: none;
+    font-weight: 700
+}
+
+.availability-slot.free {
+    background: #e1f5f1;
+    color: #43ad9d
+}
+
+.availability-slot.booked {
+    background: #fdebed;
+    color: #d97680;
+    pointer-events: none
+}
+
+@media(max-width:700px) {
+    .room-calendar-panel {
+        padding: 20px 16px
+    }
+
+    .room-calendar-top {
+        align-items: start;
+        flex-direction: column;
+        gap: 22px
+    }
+}

@@ -1,0 +1,6 @@
+[
+  {"id":4,"name":"Blue Ocean","size":"กลาง","building":"อาคาร A","floor":"ชั้น 1","capacity":10,"equipment":"จอ, Video call","available":true,"company":"Acme Corporation"},
+  {"id":5,"name":"Focus Room","size":"เล็ก","building":"อาคาร A","floor":"ชั้น 2","capacity":6,"equipment":"จอ, Whiteboard","available":true,"company":"Acme Corporation"},
+  {"id":6,"name":"Board Room","size":"ใหญ่","building":"อาคาร B","floor":"ชั้น 3","capacity":16,"equipment":"จอ, Video call, Whiteboard","available":true,"company":"Acme Corporation"},
+  {"id":7,"name":"Innovation Lab","size":"ใหญ่","building":"อาคาร B","floor":"ชั้น 4","capacity":24,"equipment":"จอ, Projector, Video call","available":true,"company":"Acme Corporation"}
+]

@@ -1,0 +1,14 @@
+**/bin/
+**/obj/
+.vs/
+.idea/
+.DS_Store
+*.user
+*.suo
+*.db
+*.mdf
+*.ldf
+**/appsettings.Development.json
+publish/
+docker-data/
+*.log

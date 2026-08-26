@@ -1,0 +1,30 @@
+@using RoomBooking.Domain.Entities
+@{
+    Layout = null; ViewData["Title"] = "เข้าสู่ระบบ";
+}
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>เข้าสู่ระบบ - RoomBooking</title>
+    <link rel="stylesheet" href="~/css/login.css" asp-append-version="true" />
+</head>
+
+<body class="login-page">
+    <main class="login-card">
+        <div class="brand-mark">rb</div><span class="eyebrow">ROOMBOOKING · MAKUB CENTER</span>
+        <h1>เข้าสู่ระบบ</h1>
+        <p class="login-subtitle">จัดการการจองห้องประชุมของคุณ</p>
+        <form asp-action="Login" method="post">
+            <div asp-validation-summary="All" class="login-error"></div><label>บริษัท<select name="tenantId"
+                                                                                         required>@foreach(var company in (IEnumerable<Company>)(ViewBag.Companies ?? new List<Company>())){
+            <option value="@company.Id">@company.Name</option>
+        }
+    </select></label><label>อีเมล<input name="email"
+                                        type="email" placeholder="name@company.com" required /></label><label>รหัสผ่าน<input name="password"
+                                                                                         type="password" placeholder="••••••••" required /></label><button type="submit">เข้าสู่ระบบ</button>
+</form><small class="demo-note">Demo: ใช้อีเมลและรหัสผ่านใดก็ได้</small>
+</main>
+</body>
+</html>

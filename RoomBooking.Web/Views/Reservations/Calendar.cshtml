@@ -1,0 +1,39 @@
+@model IEnumerable<RoomBooking.Domain.Entities.Reservation>
+@{
+    var date = (DateTime)ViewBag.CalendarDate; var rooms =
+    (IEnumerable<RoomBooking.Domain.Entities.MeetingRoom>)ViewBag.Rooms; ViewData["Title"] = "Calendar Room"; var slots =
+    new[] { ("08:00", "10:00"), ("10:00", "12:00"), ("13:00", "15:00"), ("15:00", "17:00") };
+}
+<div class="page-heading calendar-heading">
+    <div><span class="eyebrow">ROOM AVAILABILITY</span>
+        <h1>Calendar Room</h1>
+        <p>ตรวจสอบห้องว่างตามวันและช่วงเวลาที่ต้องการจอง</p>
+    </div>
+</div>
+<section class="panel room-calendar-panel">
+    <div class="room-calendar-top">
+        <form method="get"><label for="calendarDate">เลือกวันที่</label><input id="calendarDate" name="date" type="date"
+                                                                                   value="@date.ToString("yyyy-MM-dd")" onchange="this.form.submit()" /></form>
+            <div class="calendar-filters"><select id="roomFilter"><option value="all">ทุกห้องประชุม</option>@foreach(var filterRoom in rooms){<option value="@filterRoom.Id">@filterRoom.Name</option>}</select><select id="statusFilter"><option value="all">ทุกสถานะ</option><option value="free">ว่าง</option><option value="booked">จองแล้ว</option></select></div><div class="calendar-legend"><span><i class="legend-free"></i>ว่าง</span><span><i
+                class="legend-booked"></i>จองแล้ว</span></div>
+            </div>
+            <div class="availability-table">
+                <div class="availability-row availability-head">
+                    <div>ห้องประชุม</div>@foreach(var slot in slots){
+                    <div>@slot.Item1 - @slot.Item2</div>
+                }
+            </div>@foreach(var room in rooms){
+            <div class="availability-row room-availability-row" data-room="@room.Id">
+                <div class="room-cell"><b>@room.Name</b><small>@room.Capacity คน · @room.Building</small></div>@foreach(var
+                slot in slots){
+                    var start = TimeSpan.Parse(slot.Item1); var end = TimeSpan.Parse(slot.Item2); var
+                booked = Model.Any(x => x.MeetingRoomId == room.Id && x.StartAt.TimeOfDay < end && x.EndAt.TimeOfDay > start && x.Status != "Cancelled" && x.Status != "Rejected");
+                    <a
+                    class="availability-slot @(booked ? "booked" : "free")" data-status="@(booked ? "booked" : "free")" asp-action="Create"
+                    asp-route-roomId="@room.Id">@(booked ? "จองแล้ว" : "ว่าง")</a>
+                }
+            </div>
+        }
+</div>
+</section>
+<script>const roomFilter=document.getElementById('roomFilter'),statusFilter=document.getElementById('statusFilter');function filterCalendar(){document.querySelectorAll('.room-availability-row').forEach(row=>{const roomOk=roomFilter.value==='all'||row.dataset.room===roomFilter.value;const slots=[...row.querySelectorAll('.availability-slot')];const statusOk=statusFilter.value==='all'||slots.some(s=>s.dataset.status===statusFilter.value);row.style.display=roomOk&&statusOk?'grid':'none'});}roomFilter.addEventListener('change',filterCalendar);statusFilter.addEventListener('change',filterCalendar);</script>

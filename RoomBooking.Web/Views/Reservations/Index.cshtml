@@ -1,0 +1,69 @@
+@model IEnumerable<RoomBooking.Domain.Entities.Reservation>
+@{
+    ViewData["Title"] = "Reservations";
+}
+<div class="page-heading">
+    <div>
+        <span class="eyebrow">RESERVATION MANAGEMENT</span>
+        <h1>รายการจองห้อง</h1>
+        <p>ตรวจสอบและจัดการการจองห้องประชุมทั้งหมด</p>
+    </div><a class="button" asp-action="Create">+ จองห้องประชุม</a>
+</div>
+<section class="panel reservation-list-panel">
+    <div class="reservation-toolbar"><input id="reservationSearch" type="search"
+                                                placeholder="ค้นหาหัวข้อ ห้องประชุม หรือผู้จอง..." /><select id="reservationFilter">
+        <option value="all">ทุกสถานะ</option>
+        <option value="pending">รออนุมัติ</option>
+        <option value="confirmed">ยืนยันแล้ว</option>
+        <option value="cancelled">ยกเลิกแล้ว</option>
+    </select></div>
+    <div class="reservation-list">
+        <div class="reservation-list-head">
+            <span>หัวข้อการประชุม</span><span>ห้องประชุม</span><span>ผู้จอง</span><span>วันเวลา</span><span>สถานะ</span><span></span>
+        </div>@foreach(var item in Model) { var cancelled=item.Status=="Cancelled";
+        var canCheckIn = item.Status == "Approved" && item.StartAt <= DateTime.Now && item.EndAt > DateTime.Now;
+        var waitingCheckIn = item.Status == "Approved" && item.StartAt > DateTime.Now && item.StartAt.Date ==
+        DateTime.Today;
+        var isExpired = item.Status == "Approved" && item.EndAt <= DateTime.Now;
+        <div class="reservation-list-row reservation-item"
+             data-search="@item.Subject @item.MeetingRoom?.Name @item.User?.FullName"
+             data-status="@(cancelled ? "cancelled" : item.Status == "Pending" ? "pending" : "confirmed")">
+            <div><b>@item.Subject</b><small>Meeting reservation</small></div>
+            <span>@item.MeetingRoom?.Name</span><span>@item.User?.FullName</span><span>@item.StartAt.ToString("dd/MM/yyyy HH:mm") - @item.EndAt.ToString("HH:mm")</span><span><span
+            class="tag @(cancelled ? "tag-cancelled" : item.Status == "Pending" || item.Status == "Rejected" ? "tag-pending" : "tag-confirmed")">@(cancelled
+                                ? "ยกเลิกแล้ว" : item.Status == "Pending" ? "รออนุมัติ" : item.Status == "Rejected" ? "ปฏิเสธ" :
+                                item.Status == "CheckedIn" ? "กำลังประชุม" : item.Status == "Completed" ? "เสร็จสิ้น" : isExpired ?
+                            "หมดเวลา" : "ยืนยันแล้ว")</span></span><span class="reservation-actions">@if(canCheckIn) {
+            <form
+                asp-action="CheckInPost" method="post"><input type="hidden" name="id" value="@item.Id" /><button
+                class="outline-button" type="submit">เช็กอิน</button></form>
+            } else if (item.Status == "CheckedIn")
+            {
+
+                <form asp-action="CheckOutPost" method="post"><input type="hidden" name="id"
+                                                                         value="@item.Id" /><button class="button" type="submit">เช็กเอาต์</button></form>
+                } else
+                    if (waitingCheckIn)
+                    {
+
+                        <span class="action-hint">รอเวลาเช็กอิน</span>
+                    }
+                    else if (isExpired)
+                    {
+
+                        <span
+                        class="action-hint">หมดเวลา</span>
+                    }
+                @if (!cancelled && item.Status != "Completed" &&
+                               item.Status != "CheckedIn" && !isExpired)
+                {
+                    <form asp-action="Cancel" method="post"><input type="hidden" name="id" value="@item.Id" /><button
+                        class="link-danger" type="submit">ยกเลิก</button></form>
+                    }
+                </span>
+            </div>
+        }
+    </div>
+</section>
+<script>
+    const bs = document.getElementById('reservationSearch'), bf = document.getElementById('reservationFilter'); function filterReservations() { const q = bs.value.toLowerCase(), v = bf.value; document.querySelectorAll('.reservation-item').forEach(x => x.style.display = (!q || x.dataset.search.toLowerCase().includes(q)) && (v === 'all' || x.dataset.status === v) ? 'grid' : 'none') } bs.addEventListener('input', filterReservations); bf.addEventListener('change', filterReservations);</script>

@@ -1,0 +1,2 @@
+namespace RoomBooking.Domain.Entities;
+public class User { public int Id { get; set; } public int CompanyId { get; set; } public Company? Company { get; set; } public string Email { get; set; } = ""; public string PasswordHash { get; set; } = ""; public string FullName { get; set; } = ""; public string Role { get; set; } = "Employee"; public bool IsActive { get; set; } = true; public ICollection<Reservation> Reservations { get; set; } = []; }

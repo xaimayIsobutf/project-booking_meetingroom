@@ -1,0 +1,42 @@
+@model IEnumerable<RoomBooking.Domain.Entities.Reservation>
+<link rel="stylesheet" href="~/css/approvals.css" asp-append-version="true" />
+@{
+    ViewData["Title"] = "Approvals";
+}
+<div class="page-heading">
+    <div><span class="eyebrow">RESERVATION APPROVALS</span>
+        <h1>อนุมัติการจอง</h1>
+        <p>ตรวจสอบรายการจองที่รอการอนุมัติ</p>
+    </div>
+</div>
+<section class="panel approval-panel">
+    <div class="table-wrap">
+        <table class="booking-table approval-table">
+            <thead>
+                <tr>
+                    <th>หัวข้อ</th>
+                    <th>ห้อง</th>
+                    <th>ผู้จอง</th>
+                    <th>วันเวลา</th>
+                    <th>การจัดการ</th>
+                </tr>
+            </thead>
+            <tbody>@foreach(var item in Model){
+                <tr>
+                    <td><b class="approval-title">@item.Subject</b><small class="approval-meta">Reservation request</small></td>
+                    <td>@item.MeetingRoom?.Name</td>
+                    <td>@item.User?.FullName</td>
+                    <td>@item.StartAt.ToString("dd/MM/yyyy HH:mm") - @item.EndAt.ToString("HH:mm")</td>
+                    <td><div class="approval-actions">
+                        <form class="inline-form" asp-action="Approve" method="post"><input type="hidden" name="id"
+                                value="@item.Id" /><button class="button" type="submit">อนุมัติ</button></form>
+                            <form class="inline-form" asp-action="Reject" method="post"><input type="hidden" name="id"
+                                value="@item.Id" /><input type="hidden" name="reason" value="ไม่อนุมัติ" /><button
+                                class="link-danger" type="submit">ปฏิเสธ</button></form>
+                            </div></td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </section>

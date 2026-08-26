@@ -1,0 +1,74 @@
+@using System.Security.Claims
+@using RoomBooking.Infrastructure.Persistence
+@using RoomBooking.Web.Infrastructure
+@inject RoomBookingDbContext Db
+@{ var currentTenant = Context.TenantId(); var pendingCount = User.IsInRole("SuperAdmin") || User.IsInRole("TenantAdmin") || User.IsInRole("Approver") ? Db.Reservations.Count(x => currentTenant != null && x.CompanyId == currentTenant && x.Status == "Pending") : 0; }
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - RoomBooking</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/calendar.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/approvals.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/rooms.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/share-room.css" asp-append-version="true" />
+</head>
+
+<body>
+    <div class="app-shell">
+        <aside class="sidebar">
+            <div class="brand">
+                <div class="brand-mark">rb</div>
+                <div><b>RoomBooking</b><small>Meeting room center</small></div><button class="menu-toggle">☰</button>
+            </div>
+            <div class="sidebar-label">WORKSPACE</div>
+            <nav class="side-nav"><a asp-controller="Home" asp-action="Index"><span>▦</span> Dashboard</a><a
+                asp-controller="Rooms" asp-action="Index"><span>▥</span> Meeting rooms</a><a
+                asp-controller="Reservations" asp-action="Calendar"><span>▣</span> Calendar Room</a><a asp-controller="Reports" asp-action="Index"><span>▤</span> Reports</a><a
+                asp-controller="Reservations" asp-action="Index"><span>⌑</span>
+                Reservations</a>@if(User.IsInRole("SuperAdmin")||User.IsInRole("TenantAdmin")||User.IsInRole("Approver")){
+                <a
+                asp-controller="Reservations" asp-action="Approvals"><span>✓</span> Approvals</a>
+            }else
+            {
+
+                <a
+                asp-controller="Reservations" asp-action="History"><span>◷</span> Booking history</a>
+            }
+        </nav>
+        <div class="sidebar-label">TEAM</div>
+        <nav class="side-nav"><a asp-controller="Users" asp-action="Index"><span>♙</span> Members</a></nav>
+        <div class="sidebar-bottom">
+            <form asp-controller="Account" asp-action="Logout" method="post"><button
+                type="submit">ออกจากระบบ</button></form>
+            </div>
+        </aside>
+        <div class="main-shell">
+            <header class="topbar">
+                <div><span class="breadcrumb">Workspace</span>
+                    <h2>@ViewData["Title"]</h2>
+                </div>
+                <div class="top-actions"><button>?</button><a class="notification-link" asp-controller="Reservations" asp-action="Approvals">♧<i>@pendingCount</i></a><button>EN⌄</button>
+                    <div class="company"><span class="avatar">@(User.Identity?.Name?.FirstOrDefault() ?? 'S')</span>
+                        <div><b>@(User.Identity?.Name ?? "Guest")</b><small class="role-badge">@RoleLabel(User)</small>
+                        </div>⌄
+                    </div>
+                </div>
+            </header>
+            <main class="main-content">@RenderBody()</main>
+        </div>
+    </div>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>@await RenderSectionAsync("Scripts", required: false)
+</body>
+
+</html>
+@functions {
+    private static string RoleLabel(ClaimsPrincipal user) => user.IsInRole("SuperAdmin") ? "Super Admin" :
+    user.IsInRole("TenantAdmin") ? "Company Admin" : user.IsInRole("Approver") ? "Approver" : user.Identity?.IsAuthenticated
+    == true ? "Employee" : "Guest";
+}

@@ -1,0 +1,88 @@
+.dashboard-page {
+    background: #f8f9fa;
+    min-height: calc(100vh - 100px);
+    margin: -36px 0 -70px;
+    padding: 36px 46px 70px;
+    color: #344767
+}
+
+.dashboard-page .page-heading {
+    margin-top: 0
+}
+
+.dashboard-page .eyebrow {
+    color: #cb0c9f
+}
+
+.dashboard-page .button {
+    background: linear-gradient(310deg, #7928ca, #ff0080);
+    border-radius: 12px;
+    box-shadow: 0 4px 12px #7928ca45
+}
+
+.dashboard-page .metrics>div {
+    border: 0;
+    border-radius: 16px;
+    box-shadow: 0 8px 26px #3447671c
+}
+
+.dashboard-page .metrics .featured {
+    background: linear-gradient(310deg, #7928ca, #ff0080);
+    box-shadow: 0 8px 26px #7928ca45
+}
+
+.dashboard-page .panel {
+    border: 0;
+    border-radius: 16px;
+    box-shadow: 0 8px 26px #34476718
+}
+
+.dashboard-page .panel-heading h2 {
+    color: #344767
+}
+
+.dashboard-page .panel-heading a {
+    color: #cb0c9f;
+    font-weight: 800
+}
+
+.dashboard-page .dashboard-filters input,
+.dashboard-page .dashboard-filters select {
+    border: 1px solid #e9ecef;
+    border-radius: 10px;
+    background: #fff
+}
+
+.dashboard-page .reservation,
+.dashboard-page .room-line {
+    border-color: #f0f2f5
+}
+
+.dashboard-page .calendar-icon,
+.dashboard-page .room-icon {
+    background: #fce7f3;
+    color: #cb0c9f;
+    border-radius: 10px
+}
+
+.dashboard-page .tag-free {
+    background: #d2f5e9;
+    color: #2dce89
+}
+
+.dashboard-page .tag-booked {
+    background: #e9d8fd;
+    color: #7928ca
+}
+
+.dashboard-page .tag-busy {
+    background: #ffdedf;
+    color: #ea0606
+}
+
+@media(max-width:700px) {
+    .dashboard-page {
+        margin: -24px 0 -50px;
+        padding: 24px 18px 50px
+    }
+}

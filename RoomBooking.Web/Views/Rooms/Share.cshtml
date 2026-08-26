@@ -1,0 +1,36 @@
+@using RoomBooking.Domain.Entities
+@{
+    var room = (MeetingRoom)ViewBag.Room; var companies = (IEnumerable<Company>)ViewBag.Companies; var accesses =
+    (IEnumerable<RoomAccess>)ViewBag.Accesses; ViewData["Title"] = "แชร์ห้อง";
+}
+<div class="directory-heading">
+    <div><span class="eyebrow">ROOM ACCESS</span>
+        <h1>แชร์ห้อง @room.Name</h1>
+        <p>กำหนดบริษัทที่สามารถเข้าถึงและจองห้องนี้</p>
+    </div>
+</div>
+<section class="panel share-page" style="max-width:760px">
+    <form method="post" asp-action="Share"><input type="hidden" name="id" value="@room.Id" /><label>บริษัทปลายทาง<select
+        name="companyId" required>
+        <option value="">เลือกบริษัท</option>@foreach(var company in companies){
+        <option value="@company.Id">
+            @company.Name</option>
+        }
+    </select></label>
+    <div class="form-row"><label><input type="checkbox" name="canView" value="true" checked />
+        ดูห้องได้</label><label><input type="checkbox" name="canBook" value="true" checked />
+        จองห้องได้</label><label><input type="checkbox" name="requiresApproval" value="true" checked />
+        ต้องรออนุมัติ</label></div><button class="button" type="submit">บันทึกการแชร์</button>
+    </form>
+    <hr />
+    <h2>บริษัทที่ได้รับสิทธิ์</h2>@foreach(var access in accesses){
+    <div
+        style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid #e5eaf2">
+        <span>@access.Company?.Name <small>(ดู: @(access.CanView ? "ใช่" : "ไม่") · จอง: @(access.CanBook ? "ใช่" :
+                            "ไม่") · อนุมัติ: @(access.RequiresApproval ? "ใช่" : "ไม่"))</small></span>
+            <form method="post" asp-action="RemoveShare"><input type="hidden" name="id" value="@room.Id" /><input
+                type="hidden" name="companyId" value="@access.CompanyId" /><button class="outline-button"
+                                                                                   type="submit">ยกเลิกแชร์</button></form>
+            </div>
+        }
+    </section>

@@ -1,0 +1,106 @@
+.room-name {
+    min-width: 0
+}
+
+.room-avatar {
+    width: 42px !important;
+    height: 42px !important;
+    min-width: 42px !important;
+    max-width: 42px !important;
+    flex: 0 0 42px !important;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    display: grid;
+    place-items: center
+}
+
+.room-name>div {
+    min-width: 0
+}
+
+.room-owner {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: #7b8ba5 !important;
+    font-size: .72rem !important;
+    font-weight: 700
+}
+
+.room-modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    background: #17203380;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 70px 20px
+}
+
+.room-modal.open {
+    display: flex
+}
+
+.room-modal-card {
+    position: relative;
+    width: min(700px, 100%);
+    max-height: 90vh;
+    overflow: auto;
+    background: #fff;
+    border-radius: 18px;
+    padding: 30px;
+    box-shadow: 0 20px 60px #17203340
+}
+
+.modal-close {
+    position: absolute;
+    right: 18px;
+    top: 12px;
+    border: 0;
+    background: transparent;
+    font-size: 28px
+}
+
+.room-modal-card label {
+    display: block;
+    margin-bottom: 14px;
+    color: #52627c;
+    font-size: .9rem
+}
+
+.room-modal-card input,
+.room-modal-card select {
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
+    margin-top: 6px;
+    padding: 11px;
+    border: 1px solid #dce3ef;
+    border-radius: 8px;
+    font: inherit
+}
+
+.room-modal-card label input[type=checkbox] {
+    display: inline-block;
+    width: auto
+}
+
+.room-table-head,
+.room-table-row {
+    grid-template-columns: minmax(190px, 1.5fr) minmax(80px, .9fr) minmax(150px, 1.2fr) minmax(75px, .8fr) minmax(150px, 1.3fr) minmax(105px, 1fr) minmax(145px, 1.2fr) !important;
+    min-width: 1050px !important;
+    white-space: nowrap
+}
+
+.room-table-row {
+    font-size: .85rem !important
+}
+
+.room-table-row .row-actions {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    gap: 6px !important;
+    min-width: 210px !important;
+    white-space: nowrap !important
+}

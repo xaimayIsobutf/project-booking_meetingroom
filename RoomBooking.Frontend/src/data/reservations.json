@@ -1,0 +1,5 @@
+[
+  {"id":1,"subject":"Demo Morning Slot","roomId":4,"room":"Blue Ocean","userId":1,"user":"Acme Admin","date":"2026-08-27","start":"08:00","end":"10:00","status":"Approved","company":"Acme Corporation"},
+  {"id":2,"subject":"Demo Approval Meeting","roomId":4,"room":"Blue Ocean","userId":1,"user":"Acme Admin","date":"2026-08-26","start":"10:00","end":"11:00","status":"Pending","company":"Acme Corporation"},
+  {"id":3,"subject":"Demo Approval Meeting 02","roomId":4,"room":"Blue Ocean","userId":2,"user":"Acme User","date":"2026-08-25","start":"13:00","end":"13:05","status":"Pending","company":"Acme Corporation"}
+]
