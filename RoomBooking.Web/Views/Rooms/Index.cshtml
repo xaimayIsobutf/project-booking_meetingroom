@@ -117,8 +117,8 @@
         </select></div>
         <div class="directory-count">พบ @Model.Count() ห้องประชุม <span>ข้อมูลห้องประชุมในระบบ</span></div>
         <div class="room-table">
-            <div class="room-table-head"><span>ห้องประชุม</span><span>ขนาดห้อง</span><span>ตึก /
-                ชั้น</span><span>รองรับ</span><span>อุปกรณ์</span><span>สถานะ</span><span>การจัดการ</span></div>
+                <div class="room-table-head"><span>ห้องประชุม</span><span>ขนาดห้อง</span><span>ตึก /
+                ชั้น</span><span>รองรับ</span><span>อุปกรณ์</span><span>สถานะ</span><span>การแชร์</span><span>การจัดการ</span></div>
                 @foreach (var room in Model)
                 {
                     <div class="room-table-row room-item"
@@ -128,35 +128,48 @@
                             <div><b>@room.Name</b><small>Meeting room</small><small class="room-owner">ห้องของบริษัท @room.OwnerCompanyName</small></div>
                         </div><span>@room.RoomSize</span><span>@room.Building · @room.Floor</span><span>@room.Capacity
                         คน</span><span class="muted">@room.Equipment</span><span><span
-                        class="status status-directory">@(room.Available?"เปิดใช้งาน":"ปิดใช้งาน")</span></span>
-                        <div class="row-actions">@if (!room.IsShared){<a class="outline-button" asp-controller="Rooms" asp-action="Share" asp-route-id="@room.Id">แชร์ห้อง</a>}<a class="outline-button" asp-controller="Reservations" asp-action="Create"
-                                                        asp-route-roomId="@room.Id">จอง</a><button type="button" class="outline-button edit-room"
-                                                                       data-id="@room.Id" data-name="@room.Name" data-size="@room.RoomSize" data-building="@room.Building"
-                                                                       data-floor="@room.Floor" data-capacity="@room.Capacity" data-equipment="@room.Equipment" data-approval="@room.RequiresApproval" data-notice="@room.BookingNoticeHours"
-                                                                       data-active="@room.Available">แก้ไข</button></div>
+                        class="status status-directory">@(room.Available?"เปิดใช้งาน":"ปิดใช้งาน")</span></span><span><span class="status @(room.HasSharing ? "status-shared" : "status-not-shared")">@(room.HasSharing ? "แชร์แล้ว" : "ไม่ได้แชร์")</span></span>
+                        <div class="row-actions">
+                            @if (User.IsInRole("TenantAdmin"))
+                            {
+                                if (!room.IsShared)
+                                {
+                                    <a class="outline-button" asp-controller="Rooms" asp-action="Share" asp-route-id="@room.Id">แชร์ห้อง</a>
+                                }
+                            }
+                            <a class="outline-button" asp-controller="Reservations" asp-action="Create" asp-route-roomId="@room.Id">จอง</a>
+                            @if (User.IsInRole("TenantAdmin"))
+                            {
+                                <button type="button" class="outline-button edit-room" data-id="@room.Id" data-name="@room.Name" data-size="@room.RoomSize" data-building="@room.Building" data-floor="@room.Floor" data-capacity="@room.Capacity" data-equipment="@room.Equipment" data-approval="@room.RequiresApproval" data-notice="@room.BookingNoticeHours" data-active="@room.Available">แก้ไข</button>
+                                <form asp-action="Delete" method="post" onsubmit="return confirm('ยืนยันการปิดใช้งานห้องนี้?');">
+                                    <input type="hidden" name="id" value="@room.Id" />
+                                    <button type="submit" class="link-danger">ลบห้อง</button>
+                                </form>
+                            }
+                        </div>
                         </div>
                     }
                 </div>
-            </section><script>document.getElementById('openCreateRoom').addEventListener('click',()=>{document.getElementById('roomNotice').value=60;document.getElementById('roomApproval').checked=false});document.querySelectorAll('.edit-room').forEach(b=>b.addEventListener('click',()=>{document.getElementById('roomNotice').value=b.dataset.notice==='1'?'60':(b.dataset.notice||'60');document.getElementById('roomApproval').checked=b.dataset.approval==='True'||b.dataset.approval==='true'}));</script>
+            </section>
             <div id="roomModal" class="room-modal">
                 <div class="room-modal-card"><button type="button" class="modal-close" id="closeRoomModal">×</button>
                     <h2 id="roomModalTitle">เพิ่มห้องประชุม</h2>
-                    <form id="roomForm" method="post"><input id="roomId" name="Id" type="hidden" value="0" /><label>ห้องประชุม<input
+                    <form id="roomForm" method="post">@Html.AntiForgeryToken()<input id="roomId" name="Id" type="hidden" value="0" /><label>ห้องประชุม<input
                         id="roomName" name="Name" required /></label>
                         <div class="form-row"><label>ขนาดห้องประชุม<select id="roomSize" name="RoomSize">
                             <option>เล็ก</option>
                             <option selected>กลาง</option>
                             <option>ใหญ่</option>
                         </select></label><label>ตึก<input id="roomBuilding" name="Building"
-                        ßrequired /></label><label>ชั้น<select id="roomFloor" name="Floor" required>@for(var
+                        required /></label><label>ชั้น<select id="roomFloor" name="Floor" required>@for(var
                         floor = 1; floor <= 10; floor++){
                             <option>ชั้น @floor</option>
                         }
                     </select></label></div>
                     <div class="form-row"><label>รองรับ (คน)<input id="roomCapacity" name="Capacity" type="number" min="1"
                                                                        required /></label><label>อุปกรณ์<input id="roomEquipment" name="Equipment" /></label></div>
-                        <div class="form-row"><label>จองล่วงหน้า<select id="roomNotice" name="BookingNoticeHours" required><option value="0">ไม่กำหนด</option><option value="15">15 นาที</option><option value="30">30 นาที</option><option value="60">1 ชั่วโมง</option><option value="120">2 ชั่วโมง</option></select></label><label class="check-label"><input id="roomApproval" name="RequiresApproval" type="checkbox" value="true" /> ต้องรอ Admin อนุมัติ</label></div>
-                        <label><input id="roomActive" name="Available" type="checkbox" checked /> เปิดใช้งาน</label>
+                        <div class="form-row"><label>จองล่วงหน้า<select id="roomNotice" name="BookingNoticeHours" required><option value="0">ไม่กำหนด</option><option value="15">15 นาที</option><option value="30">30 นาที</option><option value="60">1 ชั่วโมง</option><option value="120">2 ชั่วโมง</option></select></label><label class="check-label"><input type="hidden" name="RequiresApproval" value="false" /><input id="roomApproval" name="RequiresApproval" type="checkbox" value="true" /> ต้องรอ Admin อนุมัติ</label></div>
+                        <label><input id="roomActive" name="Available" type="checkbox" value="true" checked /> เปิดใช้งาน<input type="hidden" name="Available" value="false" /></label>
                         <div class="actions"><button type="button" class="outline-button"
                                                          id="cancelRoomModal">ยกเลิก</button><button class="button" type="submit">บันทึก</button></div>
                         </form>

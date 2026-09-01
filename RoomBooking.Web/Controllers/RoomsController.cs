@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using RoomBooking.Domain.Entities;
@@ -10,11 +11,13 @@ namespace RoomBooking.Web.Controllers;
 public class RoomsController(RoomBookingDbContext db) : Controller
 {
     private int? TenantId => HttpContext.TenantId();
-    public IActionResult Index() => View(db.MeetingRooms.AsNoTracking().Where(x => TenantId != null && x.IsActive && (x.CompanyId == TenantId || db.RoomAccesses.Any(a => a.RoomId == x.Id && a.CompanyId == TenantId && a.CanView))).OrderBy(x => x.Name)
-        .Select(x => new RoomViewModel { Id = x.Id, Name = x.Name, RoomSize = x.RoomSize, Building = x.Building, Floor = x.Floor, Location = x.Location, Capacity = x.Capacity, Equipment = x.Equipment, Available = x.IsActive, RequiresApproval = x.RequiresApproval, BookingNoticeHours = x.BookingNoticeHours, OwnerCompanyName = x.Company!.Name, IsShared = x.CompanyId != TenantId }).ToList());
+    public IActionResult Index() => View(db.MeetingRooms.AsNoTracking().Where(x => TenantId != null && (User.IsInRole("TenantAdmin") || x.IsActive) && (x.CompanyId == TenantId || db.RoomAccesses.Any(a => a.RoomId == x.Id && a.CompanyId == TenantId && a.CanView))).OrderBy(x => x.Name)
+        .Select(x => new RoomViewModel { Id = x.Id, Name = x.Name, RoomSize = x.RoomSize, Building = x.Building, Floor = x.Floor, Location = x.Location, Capacity = x.Capacity, Equipment = x.Equipment, Available = x.IsActive, RequiresApproval = x.RequiresApproval, BookingNoticeHours = x.BookingNoticeHours, OwnerCompanyName = x.Company!.Name, IsShared = x.CompanyId != TenantId, HasSharing = db.RoomAccesses.Any(a => a.RoomId == x.Id) }).ToList());
 
+    [Authorize(Roles = "TenantAdmin")]
     public IActionResult Create() => View(new RoomViewModel());
 
+    [Authorize(Roles = "TenantAdmin")]
     public IActionResult Share(int id)
     {
         var room = db.MeetingRooms.AsNoTracking().FirstOrDefault(x => x.Id == id && x.CompanyId == TenantId);
@@ -25,6 +28,7 @@ public class RoomsController(RoomBookingDbContext db) : Controller
         return View();
     }
 
+    [Authorize(Roles = "TenantAdmin")]
     [HttpPost, ValidateAntiForgeryToken]
     public IActionResult Share(int id, int companyId, bool canView = true, bool canBook = true, bool requiresApproval = true)
     {
@@ -37,6 +41,7 @@ public class RoomsController(RoomBookingDbContext db) : Controller
         return RedirectToAction(nameof(Share), new { id });
     }
 
+    [Authorize(Roles = "TenantAdmin")]
     [HttpPost, ValidateAntiForgeryToken]
     public IActionResult RemoveShare(int id, int companyId)
     {
@@ -45,6 +50,7 @@ public class RoomsController(RoomBookingDbContext db) : Controller
         return RedirectToAction(nameof(Share), new { id });
     }
 
+    [Authorize(Roles = "TenantAdmin")]
     [HttpPost, ValidateAntiForgeryToken]
     public IActionResult Create(RoomViewModel model)
     {
@@ -56,12 +62,14 @@ public class RoomsController(RoomBookingDbContext db) : Controller
         return RedirectToAction(nameof(Index));
     }
 
+    [Authorize(Roles = "TenantAdmin")]
     public IActionResult Edit(int id)
     {
         var room = db.MeetingRooms.Find(id);
         return room is null ? NotFound() : View(new RoomViewModel { Id = room.Id, Name = room.Name, RoomSize = room.RoomSize, Building = room.Building, Floor = room.Floor, Location = room.Location, Capacity = room.Capacity, Equipment = room.Equipment, Available = room.IsActive, RequiresApproval = room.RequiresApproval, BookingNoticeHours = room.BookingNoticeHours });
     }
 
+    [Authorize(Roles = "TenantAdmin")]
     [HttpPost, ValidateAntiForgeryToken]
     public IActionResult Edit(RoomViewModel model)
     {
@@ -73,6 +81,7 @@ public class RoomsController(RoomBookingDbContext db) : Controller
         return RedirectToAction(nameof(Index));
     }
 
+    [Authorize(Roles = "TenantAdmin")]
     [HttpPost, ValidateAntiForgeryToken]
     public IActionResult Delete(int id)
     {

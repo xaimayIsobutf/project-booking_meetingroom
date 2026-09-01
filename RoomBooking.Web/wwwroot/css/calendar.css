@@ -21,7 +21,7 @@
 }
 
 .calendar-filters select {
-    min-width: 190px;
+    min-width: 180px;
     height: 52px;
     padding: 0 42px 0 16px;
     border: 1px solid #dce3ef;
@@ -34,7 +34,7 @@
 }
 
 .calendar-filters select#statusFilter {
-    min-width: 150px
+    min-width: 140px
 }
 
 .room-calendar-top form {
@@ -58,7 +58,7 @@
 
 .calendar-legend {
     display: flex;
-    gap: 24px;
+    gap: 20px;
     color: #718096;
     font-weight: 700
 }
@@ -153,3 +153,4 @@
         flex: 1
     }
 }
+.calendar-view-switch{display:flex;gap:6px;margin-top:16px}.calendar-view-switch a{padding:9px 14px;border:1px solid #d9e2ef;border-radius:9px;text-decoration:none;color:#718096;font-weight:700}.calendar-view-switch a.active{background:#315be8;color:#fff;border-color:#315be8}.weekly-title{padding:4px 0 18px;font-size:18px}.weekly-table{overflow:auto}.weekly-row{display:grid;grid-template-columns:180px repeat(7,minmax(115px,1fr));min-width:1000px;border-bottom:1px solid #edf0f5}.weekly-row>div{padding:14px 10px;border-right:1px solid #edf0f5}.weekly-head{background:#f2f5fb;color:#718096;font-size:12px;font-weight:800}.weekly-day{display:flex;flex-direction:column;gap:6px}.weekly-free,.weekly-booked{display:block;text-align:center;padding:8px 4px;border-radius:7px;font-size:11px;font-weight:800}.weekly-free{background:#dff5f0;color:#26a995;text-decoration:none}.weekly-booked.morning{background:#eadfff;color:#7b3fc0}.weekly-booked.afternoon{background:#fde6ea;color:#dc6270}.weekly-row .room-cell{font-weight:800}.weekly-row .room-cell small{display:block;margin-top:5px;color:#8a99ad;font-weight:500}

@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Identity;
 using RoomBooking.Web.Infrastructure;
 var builder = WebApplication.CreateBuilder(args);
 
+
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie(options=>{options.LoginPath="/Account/Login";options.AccessDeniedPath="/Account/Denied";});
@@ -13,7 +14,9 @@ builder.Services.AddAuthorization();
 builder.Services.AddDistributedMemoryCache();
 builder.Services.AddSession();
 builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
-builder.Services.AddDbContext<RoomBookingDbContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+builder.Services.AddDbContext<RoomBookingDbContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+builder.Services.AddSingleton<IAppTime, AppTime>();
+
 
 builder.Services.AddHealthChecks();
 

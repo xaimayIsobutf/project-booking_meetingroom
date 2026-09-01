@@ -1,39 +1,369 @@
 @model IEnumerable<RoomBooking.Domain.Entities.Reservation>
+
+@using RoomBooking.Domain.Entities
+@using RoomBooking.Web.Infrastructure;
+
+@inject IAppTime AppTime
+
 @{
-    var date = (DateTime)ViewBag.CalendarDate; var rooms =
-    (IEnumerable<RoomBooking.Domain.Entities.MeetingRoom>)ViewBag.Rooms; ViewData["Title"] = "Calendar Room"; var slots =
-    new[] { ("08:00", "10:00"), ("10:00", "12:00"), ("13:00", "15:00"), ("15:00", "17:00") };
+    var date = (DateTime)ViewBag.CalendarDate;
+
+    var rooms =
+        (IEnumerable<MeetingRoom>)ViewBag.Rooms;
+
+    ViewData["Title"] = "Calendar Room";
+
+    var slots = new[]
+    {
+        ("08:00", "10:00"),
+        ("10:00", "12:00"),
+        ("13:00", "15:00"),
+        ("15:00", "17:00")
+    };
+
+    var isWeek =
+        (string?)ViewBag.CalendarView == "week";
+
+    var weekStart =
+        date.AddDays(-(int)date.DayOfWeek);
+
+    /*
+     * Convert UTC reservation times to Thailand time
+     * before doing any calendar comparison.
+     */
+    var thailandReservations =
+        Model.Select(x => new
+        {
+            Reservation = x,
+            Start = AppTime.UtcToThailand(x.StartAt),
+            End = AppTime.UtcToThailand(x.EndAt)
+        }).ToList();
 }
+
 <div class="page-heading calendar-heading">
-    <div><span class="eyebrow">ROOM AVAILABILITY</span>
+    <div>
+        <span class="eyebrow">ROOM AVAILABILITY</span>
+
         <h1>Calendar Room</h1>
-        <p>ตรวจสอบห้องว่างตามวันและช่วงเวลาที่ต้องการจอง</p>
+
+        <p>
+            ตรวจสอบห้องว่างตามวันและช่วงเวลาที่ต้องการจอง
+        </p>
+
+        <div class="calendar-view-switch">
+            <a class="@(isWeek ? "" : "active")"
+               asp-action="Calendar"
+               asp-route-date="@date.ToString("yyyy-MM-dd")">
+                รายวัน
+            </a>
+
+            <a class="@(isWeek ? "active" : "")"
+               asp-action="Calendar"
+               asp-route-date="@date.ToString("yyyy-MM-dd")"
+               asp-route-view="week">
+                รายสัปดาห์
+            </a>
+        </div>
     </div>
 </div>
-<section class="panel room-calendar-panel">
-    <div class="room-calendar-top">
-        <form method="get"><label for="calendarDate">เลือกวันที่</label><input id="calendarDate" name="date" type="date"
-                                                                                   value="@date.ToString("yyyy-MM-dd")" onchange="this.form.submit()" /></form>
-            <div class="calendar-filters"><select id="roomFilter"><option value="all">ทุกห้องประชุม</option>@foreach(var filterRoom in rooms){<option value="@filterRoom.Id">@filterRoom.Name</option>}</select><select id="statusFilter"><option value="all">ทุกสถานะ</option><option value="free">ว่าง</option><option value="booked">จองแล้ว</option></select></div><div class="calendar-legend"><span><i class="legend-free"></i>ว่าง</span><span><i
-                class="legend-booked"></i>จองแล้ว</span></div>
+
+@if (!isWeek)
+{
+    <section class="panel room-calendar-panel">
+
+        <div class="room-calendar-top">
+
+            <form method="get">
+                <label for="calendarDate">
+                    เลือกวันที่
+                </label>
+
+                <input id="calendarDate"
+                       name="date"
+                       type="date"
+                       value="@date.ToString("yyyy-MM-dd")"
+                       onchange="this.form.submit()" />
+            </form>
+
+            <div class="calendar-filters">
+
+                <select id="roomFilter">
+                    <option value="all">
+                        ทุกห้องประชุม
+                    </option>
+
+                    @foreach (var filterRoom in rooms)
+                    {
+                        <option value="@filterRoom.Id">
+                            @filterRoom.Name
+                        </option>
+                    }
+                </select>
+
+                <select id="statusFilter">
+                    <option value="all">
+                        ทุกสถานะ
+                    </option>
+
+                    <option value="free">
+                        ว่าง
+                    </option>
+
+                    <option value="booked">
+                        จองแล้ว
+                    </option>
+                </select>
+
             </div>
-            <div class="availability-table">
-                <div class="availability-row availability-head">
-                    <div>ห้องประชุม</div>@foreach(var slot in slots){
-                    <div>@slot.Item1 - @slot.Item2</div>
-                }
-            </div>@foreach(var room in rooms){
-            <div class="availability-row room-availability-row" data-room="@room.Id">
-                <div class="room-cell"><b>@room.Name</b><small>@room.Capacity คน · @room.Building</small></div>@foreach(var
-                slot in slots){
-                    var start = TimeSpan.Parse(slot.Item1); var end = TimeSpan.Parse(slot.Item2); var
-                booked = Model.Any(x => x.MeetingRoomId == room.Id && x.StartAt.TimeOfDay < end && x.EndAt.TimeOfDay > start && x.Status != "Cancelled" && x.Status != "Rejected");
-                    <a
-                    class="availability-slot @(booked ? "booked" : "free")" data-status="@(booked ? "booked" : "free")" asp-action="Create"
-                    asp-route-roomId="@room.Id">@(booked ? "จองแล้ว" : "ว่าง")</a>
-                }
+
+            <div class="calendar-legend">
+                <span>
+                    <i class="legend-free"></i>
+                    ว่าง
+                </span>
+
+                <span>
+                    <i class="legend-booked"></i>
+                    จองแล้ว
+                </span>
             </div>
-        }
-</div>
-</section>
-<script>const roomFilter=document.getElementById('roomFilter'),statusFilter=document.getElementById('statusFilter');function filterCalendar(){document.querySelectorAll('.room-availability-row').forEach(row=>{const roomOk=roomFilter.value==='all'||row.dataset.room===roomFilter.value;const slots=[...row.querySelectorAll('.availability-slot')];const statusOk=statusFilter.value==='all'||slots.some(s=>s.dataset.status===statusFilter.value);row.style.display=roomOk&&statusOk?'grid':'none'});}roomFilter.addEventListener('change',filterCalendar);statusFilter.addEventListener('change',filterCalendar);</script>
+
+        </div>
+
+        <div class="availability-table">
+
+            <div class="availability-row availability-head">
+
+                <div>
+                    ห้องประชุม
+                </div>
+
+                @foreach (var slot in slots)
+                {
+                    <div>
+                        @slot.Item1 - @slot.Item2
+                    </div>
+                }
+
+            </div>
+
+            @foreach (var room in rooms)
+            {
+                <div class="availability-row room-availability-row"
+                     data-room="@room.Id">
+
+                    <div class="room-cell">
+                        <b>@room.Name</b>
+
+                        <small>
+                            @room.Capacity คน · @room.Building
+                        </small>
+                    </div>
+
+                    @foreach (var slot in slots)
+                    {
+                        var start =
+                            TimeSpan.Parse(slot.Item1);
+
+                        var end =
+                            TimeSpan.Parse(slot.Item2);
+
+                        /*
+                         * IMPORTANT:
+                         * Start/End below are Thailand time.
+                         *
+                         * Database:
+                         * UTC
+                         *
+                         * AppTime:
+                         * UTC -> Thailand
+                         */
+
+                        var booked =
+                            thailandReservations.Any(x =>
+                                x.Reservation.MeetingRoomId == room.Id &&
+                                x.Start.Date == date.Date &&
+                                x.Start.TimeOfDay < end &&
+                                x.End.TimeOfDay > start &&
+                                x.Reservation.Status != "Cancelled" &&
+                                x.Reservation.Status != "Rejected");
+
+                        <a class="availability-slot @(booked ? "booked" : "free")"
+                           data-status="@(booked ? "booked" : "free")"
+                           asp-action="Create"
+                           asp-route-roomId="@room.Id"
+                           asp-route-date="@date.ToString("yyyy-MM-dd")">
+
+                            @(booked ? "จองแล้ว" : "ว่าง")
+
+                        </a>
+                    }
+
+                </div>
+            }
+
+        </div>
+
+    </section>
+}
+
+@if (isWeek)
+{
+    <section class="panel room-calendar-panel weekly-calendar-panel">
+
+        <div class="weekly-title">
+            <b>
+                สัปดาห์
+                @weekStart.ToString("dd/MM/yyyy")
+                –
+                @weekStart.AddDays(6).ToString("dd/MM/yyyy")
+            </b>
+        </div>
+
+        <div class="weekly-table">
+
+            <div class="weekly-row weekly-head">
+
+                <div>
+                    ห้องประชุม
+                </div>
+
+                @for (var d = 0; d < 7; d++)
+                {
+                    var headerDay = weekStart.AddDays(d);
+
+                    <div>
+                        @headerDay.ToString("ddd dd/MM")
+                    </div>
+                }
+
+            </div>
+
+            @foreach (var room in rooms)
+            {
+                <div class="weekly-row">
+
+                    <div class="room-cell">
+                        <b>@room.Name</b>
+
+                        <small>
+                            @room.Capacity คน · @room.Building
+                        </small>
+                    </div>
+
+                    @for (var d = 0; d < 7; d++)
+                    {
+                        var day = weekStart.AddDays(d);
+
+                        var dayReservations =
+                            thailandReservations
+                                .Where(x =>
+                                    x.Reservation.MeetingRoomId == room.Id &&
+                                    x.Start.Date == day.Date &&
+                                    x.Reservation.Status != "Cancelled" &&
+                                    x.Reservation.Status != "Rejected")
+                                .ToList();
+
+                        var hasMorning =
+                            dayReservations.Any(x =>
+                                x.Start.TimeOfDay < new TimeSpan(12, 0, 0) &&
+                                x.End.TimeOfDay > new TimeSpan(8, 0, 0));
+
+                        var hasAfternoon =
+                            dayReservations.Any(x =>
+                                x.End.TimeOfDay > new TimeSpan(13, 0, 0) &&
+                                x.Start.TimeOfDay < new TimeSpan(17, 0, 0));
+
+                        <div class="weekly-day">
+
+                            @if (hasMorning)
+                            {
+                                <span class="weekly-booked morning">
+                                    เช้า
+                                </span>
+                            }
+                            else
+                            {
+                                <a asp-action="Create"
+                                   asp-route-roomId="@room.Id"
+                                   asp-route-date="@day.ToString("yyyy-MM-dd")"
+                                   asp-route-bookingSlot="morning"
+                                   class="weekly-free">
+                                    ว่าง
+                                </a>
+                            }
+
+                            @if (hasAfternoon)
+                            {
+                                <span class="weekly-booked afternoon">
+                                    บ่าย
+                                </span>
+                            }
+                            else
+                            {
+                                <a asp-action="Create"
+                                   asp-route-roomId="@room.Id"
+                                   asp-route-date="@day.ToString("yyyy-MM-dd")"
+                                   asp-route-bookingSlot="afternoon"
+                                   class="weekly-free">
+                                    ว่าง
+                                </a>
+                            }
+
+                        </div>
+                    }
+
+                </div>
+            }
+
+        </div>
+
+    </section>
+}
+
+<script>
+    const roomFilter =
+        document.getElementById('roomFilter');
+
+    const statusFilter =
+        document.getElementById('statusFilter');
+
+    function filterCalendar() {
+
+        document
+            .querySelectorAll('.room-availability-row')
+            .forEach(row => {
+
+                const roomOk =
+                    roomFilter.value === 'all' ||
+                    row.dataset.room === roomFilter.value;
+
+                const slots =
+                    [...row.querySelectorAll('.availability-slot')];
+
+                const statusOk =
+                    statusFilter.value === 'all' ||
+                    slots.some(
+                        s => s.dataset.status === statusFilter.value
+                    );
+
+                row.style.display =
+                    roomOk && statusOk
+                        ? 'grid'
+                        : 'none';
+            });
+    }
+
+    if (roomFilter && statusFilter) {
+
+        roomFilter.addEventListener(
+            'change',
+            filterCalendar
+        );
+
+        statusFilter.addEventListener(
+            'change',
+            filterCalendar
+        );
+    }
+</script>

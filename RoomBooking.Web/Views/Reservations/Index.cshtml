@@ -1,69 +1,380 @@
 @model IEnumerable<RoomBooking.Domain.Entities.Reservation>
+
+@using RoomBooking.Web.Infrastructure;
+
+@inject IAppTime AppTime
+
 @{
     ViewData["Title"] = "Reservations";
+
+    /*
+     * Database stores StartAt / EndAt as UTC.
+     * Convert current time to UTC for comparisons.
+     * Convert reservation times to Thailand for display.
+     */
+    var nowUtc = AppTime.UtcNow;
+    var thailandNow = AppTime.ThailandNow;
 }
+
 <div class="page-heading">
     <div>
         <span class="eyebrow">RESERVATION MANAGEMENT</span>
+
         <h1>รายการจองห้อง</h1>
-        <p>ตรวจสอบและจัดการการจองห้องประชุมทั้งหมด</p>
-    </div><a class="button" asp-action="Create">+ จองห้องประชุม</a>
+
+        <p>
+            ตรวจสอบและจัดการการจองห้องประชุมทั้งหมด
+        </p>
+    </div>
+
+    <a class="button"
+       asp-action="Create">
+        + จองห้องประชุม
+    </a>
 </div>
+
 <section class="panel reservation-list-panel">
-    <div class="reservation-toolbar"><input id="reservationSearch" type="search"
-                                                placeholder="ค้นหาหัวข้อ ห้องประชุม หรือผู้จอง..." /><select id="reservationFilter">
-        <option value="all">ทุกสถานะ</option>
-        <option value="pending">รออนุมัติ</option>
-        <option value="confirmed">ยืนยันแล้ว</option>
-        <option value="cancelled">ยกเลิกแล้ว</option>
-    </select></div>
+
+    <div class="reservation-toolbar">
+
+        <input id="reservationSearch"
+               type="search"
+               placeholder="ค้นหาหัวข้อ ห้องประชุม หรือผู้จอง..." />
+
+        <select id="reservationFilter">
+
+            <option value="all">
+                ทุกสถานะ
+            </option>
+
+            <option value="pending">
+                รออนุมัติ
+            </option>
+
+            <option value="confirmed">
+                ยืนยันแล้ว
+            </option>
+
+            <option value="cancelled">
+                ยกเลิกแล้ว
+            </option>
+
+        </select>
+
+    </div>
+
     <div class="reservation-list">
+
         <div class="reservation-list-head">
-            <span>หัวข้อการประชุม</span><span>ห้องประชุม</span><span>ผู้จอง</span><span>วันเวลา</span><span>สถานะ</span><span></span>
-        </div>@foreach(var item in Model) { var cancelled=item.Status=="Cancelled";
-        var canCheckIn = item.Status == "Approved" && item.StartAt <= DateTime.Now && item.EndAt > DateTime.Now;
-        var waitingCheckIn = item.Status == "Approved" && item.StartAt > DateTime.Now && item.StartAt.Date ==
-        DateTime.Today;
-        var isExpired = item.Status == "Approved" && item.EndAt <= DateTime.Now;
-        <div class="reservation-list-row reservation-item"
-             data-search="@item.Subject @item.MeetingRoom?.Name @item.User?.FullName"
-             data-status="@(cancelled ? "cancelled" : item.Status == "Pending" ? "pending" : "confirmed")">
-            <div><b>@item.Subject</b><small>Meeting reservation</small></div>
-            <span>@item.MeetingRoom?.Name</span><span>@item.User?.FullName</span><span>@item.StartAt.ToString("dd/MM/yyyy HH:mm") - @item.EndAt.ToString("HH:mm")</span><span><span
-            class="tag @(cancelled ? "tag-cancelled" : item.Status == "Pending" || item.Status == "Rejected" ? "tag-pending" : "tag-confirmed")">@(cancelled
-                                ? "ยกเลิกแล้ว" : item.Status == "Pending" ? "รออนุมัติ" : item.Status == "Rejected" ? "ปฏิเสธ" :
-                                item.Status == "CheckedIn" ? "กำลังประชุม" : item.Status == "Completed" ? "เสร็จสิ้น" : isExpired ?
-                            "หมดเวลา" : "ยืนยันแล้ว")</span></span><span class="reservation-actions">@if(canCheckIn) {
-            <form
-                asp-action="CheckInPost" method="post"><input type="hidden" name="id" value="@item.Id" /><button
-                class="outline-button" type="submit">เช็กอิน</button></form>
-            } else if (item.Status == "CheckedIn")
-            {
 
-                <form asp-action="CheckOutPost" method="post"><input type="hidden" name="id"
-                                                                         value="@item.Id" /><button class="button" type="submit">เช็กเอาต์</button></form>
-                } else
-                    if (waitingCheckIn)
+            <span>หัวข้อการประชุม</span>
+            <span>ห้องประชุม</span>
+            <span>ผู้จอง</span>
+            <span>วันเวลา</span>
+            <span>สถานะ</span>
+            <span></span>
+
+        </div>
+
+        @foreach (var item in Model)
+        {
+            /*
+             * UTC values from database.
+             */
+            var startUtc =
+                DateTime.SpecifyKind(
+                    item.StartAt,
+                    DateTimeKind.Utc);
+
+            var endUtc =
+                DateTime.SpecifyKind(
+                    item.EndAt,
+                    DateTimeKind.Utc);
+
+            /*
+             * Thailand values for display.
+             */
+            var startThailand =
+                AppTime.UtcToThailand(startUtc);
+
+            var endThailand =
+                AppTime.UtcToThailand(endUtc);
+
+            var cancelled =
+                item.Status == "Cancelled";
+
+            /*
+             * Check-in logic must compare UTC with UTC.
+             */
+            var canCheckIn =
+                item.Status == "Approved" &&
+                startUtc <= nowUtc &&
+                endUtc > nowUtc;
+
+            /*
+             * "รอเวลาเช็กอิน" means:
+             * reservation starts later today in Thailand.
+             */
+            var waitingCheckIn =
+                item.Status == "Approved" &&
+                startUtc > nowUtc &&
+                startThailand.Date == thailandNow.Date;
+
+            /*
+             * Reservation has ended.
+             */
+            var isExpired =
+                item.Status == "Approved" &&
+                endUtc <= nowUtc;
+
+            /*
+             * Search/filter values.
+             */
+            var searchText =
+                $"{item.Subject} {item.MeetingRoom?.Name} {item.User?.FullName}";
+
+            var filterStatus =
+                cancelled
+                    ? "cancelled"
+                    : item.Status == "Pending"
+                        ? "pending"
+                        : "confirmed";
+
+            <div class="reservation-list-row reservation-item"
+                 data-search="@searchText"
+                 data-status="@filterStatus">
+
+                <div>
+                    <b>
+                        @item.Subject
+                    </b>
+
+                    <small>
+                        Meeting reservation
+                    </small>
+                </div>
+
+                <span>
+                    @item.MeetingRoom?.Name
+                </span>
+
+                <span>
+                    @item.User?.FullName
+                </span>
+
+                <span>
+                    @startThailand.ToString("dd/MM/yyyy HH:mm")
+                    -
+                    @endThailand.ToString("HH:mm")
+                </span>
+
+                <span>
+                    <span class="tag @(cancelled
+                        ? "tag-cancelled"
+                        : item.Status == "Pending" || item.Status == "Rejected"
+                            ? "tag-pending"
+                            : "tag-confirmed")">
+
+                        @(cancelled
+                            ? "ยกเลิกแล้ว"
+                            : item.Status == "Pending"
+                                ? "รออนุมัติ"
+                                : item.Status == "Rejected"
+                                    ? "ปฏิเสธ"
+                                    : item.Status == "CheckedIn"
+                                        ? "กำลังประชุม"
+                                        : item.Status == "Completed"
+                                            ? "เสร็จสิ้น"
+                                            : isExpired
+                                                ? "หมดเวลา"
+                                                : "ยืนยันแล้ว")
+
+                    </span>
+                </span>
+
+                <span class="reservation-actions">
+
+                    @if (canCheckIn)
                     {
+                        <form asp-action="CheckInPost"
+                              method="post">
 
-                        <span class="action-hint">รอเวลาเช็กอิน</span>
+                            @Html.AntiForgeryToken()
+
+                            <input type="hidden"
+                                   name="id"
+                                   value="@item.Id" />
+
+                            <button class="outline-button"
+                                    type="submit">
+                                เช็กอิน
+                            </button>
+
+                        </form>
+                    }
+                    else if (item.Status == "CheckedIn")
+                    {
+                        <form asp-action="CheckOutPost"
+                              method="post">
+
+                            @Html.AntiForgeryToken()
+
+                            <input type="hidden"
+                                   name="id"
+                                   value="@item.Id" />
+
+                            <button class="button"
+                                    type="submit">
+                                เช็กเอาต์
+                            </button>
+
+                        </form>
+                    }
+                    else if (waitingCheckIn)
+                    {
+                        <span class="action-hint">
+                            รอเวลาเช็กอิน
+                        </span>
                     }
                     else if (isExpired)
                     {
+                        <span class="action-hint">
+                            หมดเวลา
+                        </span>
+                    }
 
-                        <span
-                        class="action-hint">หมดเวลา</span>
+                    @if (!cancelled &&
+                         item.Status != "Completed" &&
+                         item.Status != "CheckedIn" &&
+                         !isExpired)
+                    {
+                        <form asp-action="Cancel"
+                              method="post">
+
+                            @Html.AntiForgeryToken()
+
+                            <input type="hidden"
+                                   name="id"
+                                   value="@item.Id" />
+
+                            <button class="link-danger"
+                                    type="submit">
+                                ยกเลิก
+                            </button>
+
+                        </form>
                     }
-                @if (!cancelled && item.Status != "Completed" &&
-                               item.Status != "CheckedIn" && !isExpired)
-                {
-                    <form asp-action="Cancel" method="post"><input type="hidden" name="id" value="@item.Id" /><button
-                        class="link-danger" type="submit">ยกเลิก</button></form>
-                    }
+
                 </span>
+
             </div>
         }
+
     </div>
+
 </section>
+
+@{
+    var currentPage =
+        (int?)ViewBag.Page ?? 1;
+
+    var totalPages =
+        (int?)ViewBag.TotalPages ?? 1;
+
+    var totalItems =
+        (int?)ViewBag.TotalItems ?? 0;
+
+    var pageSize =
+        (int?)ViewBag.PageSize ?? 20;
+
+    var firstItem =
+        totalItems == 0
+            ? 0
+            : ((currentPage - 1) * pageSize) + 1;
+
+    var lastItem =
+        Math.Min(
+            currentPage * pageSize,
+            totalItems);
+}
+
+<div class="pagination-footer">
+
+    <span>
+        แสดง @firstItem - @lastItem จาก @totalItems รายการ
+    </span>
+
+    <div class="pagination-controls">
+
+        <a class="pagination-button @(currentPage <= 1 ? "disabled" : "")"
+           asp-action="Index"
+           asp-route-page="@(currentPage - 1)">
+            ก่อนหน้า
+        </a>
+
+        @for (var p = 1; p <= totalPages; p++)
+        {
+            <a class="pagination-button @(p == currentPage ? "active" : "")"
+               asp-action="Index"
+               asp-route-page="@p">
+                @p
+            </a>
+        }
+
+        <a class="pagination-button @(currentPage >= totalPages ? "disabled" : "")"
+           asp-action="Index"
+           asp-route-page="@(currentPage + 1)">
+            ถัดไป
+        </a>
+
+    </div>
+
+</div>
+
 <script>
-    const bs = document.getElementById('reservationSearch'), bf = document.getElementById('reservationFilter'); function filterReservations() { const q = bs.value.toLowerCase(), v = bf.value; document.querySelectorAll('.reservation-item').forEach(x => x.style.display = (!q || x.dataset.search.toLowerCase().includes(q)) && (v === 'all' || x.dataset.status === v) ? 'grid' : 'none') } bs.addEventListener('input', filterReservations); bf.addEventListener('change', filterReservations);</script>
+    const bs =
+        document.getElementById('reservationSearch');
+
+    const bf =
+        document.getElementById('reservationFilter');
+
+    function filterReservations() {
+
+        const q =
+            bs.value.toLowerCase();
+
+        const v =
+            bf.value;
+
+        document
+            .querySelectorAll('.reservation-item')
+            .forEach(x => {
+
+                const searchOk =
+                    !q ||
+                    x.dataset.search
+                        .toLowerCase()
+                        .includes(q);
+
+                const statusOk =
+                    v === 'all' ||
+                    x.dataset.status === v;
+
+                x.style.display =
+                    searchOk && statusOk
+                        ? 'grid'
+                        : 'none';
+            });
+    }
+
+    if (bs && bf) {
+
+        bs.addEventListener(
+            'input',
+            filterReservations);
+
+        bf.addEventListener(
+            'change',
+            filterReservations);
+    }
+</script>

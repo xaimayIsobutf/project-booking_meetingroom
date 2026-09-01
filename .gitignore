@@ -12,3 +12,15 @@
 publish/
 docker-data/
 *.log
+
+# Node / Vue
+**/node_modules/
+**/dist/
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# Frontend
+RoomBooking.Frontend/

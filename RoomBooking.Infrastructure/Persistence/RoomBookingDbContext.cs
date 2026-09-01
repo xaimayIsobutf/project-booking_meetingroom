@@ -28,5 +28,18 @@ public class RoomBookingDbContext(DbContextOptions<RoomBookingDbContext> options
         // Restrict deletes to avoid SQL Server's multiple cascade path error.
         b.Entity<RoomAccess>().HasOne(x => x.Room).WithMany().HasForeignKey(x => x.RoomId).OnDelete(DeleteBehavior.Restrict);
         b.Entity<RoomAccess>().HasOne(x => x.Company).WithMany().HasForeignKey(x => x.CompanyId).OnDelete(DeleteBehavior.Restrict);
+
+        // PostgreSQL: map DateTime/DateTime? columns เป็น timestamptz แทน default (timestamp without time zone)
+        // เพราะโค้ดใช้ DateTime.UtcNow (Kind=Utc) ซึ่ง Npgsql ไม่ยอมเขียนลงคอลัมน์แบบไม่มี time zone
+        foreach (var entityType in b.Model.GetEntityTypes())
+        {
+            foreach (var property in entityType.GetProperties())
+            {
+                if (property.ClrType == typeof(DateTime) || property.ClrType == typeof(DateTime?))
+                {
+                    property.SetColumnType("timestamptz");
+                }
+            }
+        }
     }
 }

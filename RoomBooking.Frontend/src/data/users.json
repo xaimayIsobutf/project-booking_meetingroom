@@ -1,4 +1,0 @@
-[
-  {"id":1,"fullName":"Acme Admin","email":"admin@acme.local","password":"1234","role":"TenantAdmin","company":"Acme Corporation","isActive":true},
-  {"id":2,"fullName":"Acme User","email":"user@acme.local","password":"1234","role":"Employee","company":"Acme Corporation","isActive":true}
-]

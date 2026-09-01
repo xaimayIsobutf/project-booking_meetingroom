@@ -33,11 +33,6 @@
                 Reservations</a>@if(User.IsInRole("SuperAdmin")||User.IsInRole("TenantAdmin")||User.IsInRole("Approver")){
                 <a
                 asp-controller="Reservations" asp-action="Approvals"><span>✓</span> Approvals</a>
-            }else
-            {
-
-                <a
-                asp-controller="Reservations" asp-action="History"><span>◷</span> Booking history</a>
             }
         </nav>
         <div class="sidebar-label">TEAM</div>
