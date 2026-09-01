@@ -403,18 +403,35 @@ public class ReservationsController(
             };
 
         if (
-            string.IsNullOrWhiteSpace(subject) ||
-            !slots.TryGetValue(
-                bookingSlot ?? "",
-                out var selectedSlot) ||
-            attendeesCount < 1)
-        {
-            ModelState.AddModelError(
-                "",
-                "กรุณาเลือกช่วงเวลาการจอง");
+    string.IsNullOrWhiteSpace(subject) ||
+    !slots.TryGetValue(
+        bookingSlot ?? "",
+        out var selectedSlot) ||
+    attendeesCount < 1)
+{
+    ModelState.AddModelError(
+        "",
+        "กรุณากรอกข้อมูลให้ครบและเลือกช่วงเวลาการจอง");
 
-            return View();
-        }
+    ViewBag.RoomId = roomId;
+
+    ViewBag.Rooms =
+        db.MeetingRooms
+            .Where(x =>
+                x.IsActive &&
+                (
+                    x.CompanyId == TenantId ||
+                    db.RoomAccesses.Any(a =>
+                        a.RoomId == x.Id &&
+                        a.CompanyId == TenantId &&
+                        a.CanView &&
+                        a.CanBook)
+                ))
+            .OrderBy(x => x.Name)
+            .ToList();
+
+    return View();
+}
 
         /*
          * The date from <input type="date">

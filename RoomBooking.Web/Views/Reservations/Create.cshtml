@@ -1,147 +1,271 @@
 @{
     ViewData["Title"] = "จองห้องประชุม";
 
-    var selectedDate = Context.Request.Query["date"].ToString();
+    // วันที่ที่เลือกจาก query string
+    var selectedDate =
+        Context.Request.Query["date"].ToString();
 
     if (string.IsNullOrWhiteSpace(selectedDate))
     {
         selectedDate = DateTime.Now.ToString("yyyy-MM-dd");
     }
 
+    // รายการห้อง
     var rooms =
         (IEnumerable<RoomBooking.Domain.Entities.MeetingRoom>)
         (ViewBag.Rooms ??
          new List<RoomBooking.Domain.Entities.MeetingRoom>());
 
+    // ห้องที่เลือก
     var selectedRoomId =
         ViewBag.RoomId?.ToString() ?? "";
+
+    // =========================================================
+    // ใช้ ModelState แทน Context.Request.Form
+    // เพื่อป้องกัน InvalidOperationException
+    // =========================================================
+
+    var subjectValue =
+        ViewData.ModelState["subject"]?.AttemptedValue ?? "";
+
+    var attendeesValue =
+        ViewData.ModelState["attendeesCount"]?.AttemptedValue ?? "1";
+
+    var bookingSlotValue =
+        ViewData.ModelState["bookingSlot"]?.AttemptedValue ?? "full-day";
 }
 
 <div class="page-heading">
-    <div>
-        <span class="eyebrow">NEW RESERVATION</span>
 
-        <h1>จองห้องประชุม</h1>
+    <div>
+
+        <span class="eyebrow">
+            NEW RESERVATION
+        </span>
+
+        <h1>
+            จองห้องประชุม
+        </h1>
 
         <p>
             ระบุรายละเอียดการประชุมและช่วงเวลาที่ต้องการ
         </p>
+
     </div>
+
 </div>
+
 
 @if (!ViewData.ModelState.IsValid)
 {
     <div class="alert alert-danger">
-        @Html.ValidationSummary()
+
+        @Html.ValidationSummary(
+            excludePropertyErrors: false)
+
     </div>
 }
 
-<form method="post" class="form-card">
+
+<form method="post"
+      class="form-card">
 
     @Html.AntiForgeryToken()
 
+
+    <!-- ===================================================== -->
+    <!-- หัวข้อการประชุม -->
+    <!-- ===================================================== -->
+
     <label>
+
         หัวข้อการประชุม
 
         <input name="subject"
+               type="text"
                required
                placeholder="เช่น Weekly Team Meeting"
-               value="@Context.Request.Form["subject"]" />
+               value="@subjectValue" />
+
     </label>
 
+
+    <!-- ===================================================== -->
+    <!-- ห้องประชุม -->
+    <!-- ===================================================== -->
+
     <label>
+
         ห้องประชุม
 
-        <select name="roomId" required>
+        <select name="roomId"
+                required>
 
             <option value="">
                 -- เลือกห้องประชุม --
             </option>
 
+
             @foreach (var room in rooms)
             {
-                <option value="@room.Id"
-                        selected="@(selectedRoomId == room.Id.ToString() ? "selected" : null)">
-                    @room.Name · รองรับ @room.Capacity คน
-                </option>
+                if (selectedRoomId == room.Id.ToString())
+                {
+                    <option value="@room.Id"
+                            selected>
+
+                        @room.Name · รองรับ @room.Capacity คน
+
+                    </option>
+                }
+                else
+                {
+                    <option value="@room.Id">
+
+                        @room.Name · รองรับ @room.Capacity คน
+
+                    </option>
+                }
             }
 
         </select>
+
     </label>
+
+
+    <!-- ===================================================== -->
+    <!-- วันที่ + ช่วงเวลา -->
+    <!-- ===================================================== -->
 
     <div class="form-row">
 
+
+        <!-- วันที่ -->
+
         <label>
+
             วันที่
 
             <input name="date"
                    type="date"
                    required
                    value="@selectedDate" />
+
         </label>
 
+
+        <!-- ช่วงเวลาการจอง -->
+
         <label>
+
             ช่วงเวลาการจอง
 
-            <select name="bookingSlot" required>
+            <select name="bookingSlot"
+                    required>
 
-                <option value="full-day">
+
+                <option value="full-day"
+                        selected="@(bookingSlotValue == "full-day")">
+
                     เต็มวัน · 08:00–17:00
+
                 </option>
 
-                <option value="morning">
+
+                <option value="morning"
+                        selected="@(bookingSlotValue == "morning")">
+
                     ครึ่งวันเช้า · 08:00–12:00
+
                 </option>
 
-                <option value="afternoon">
+
+                <option value="afternoon"
+                        selected="@(bookingSlotValue == "afternoon")">
+
                     ครึ่งวันบ่าย · 13:00–17:00
+
                 </option>
 
-                <option value="morning-1">
+
+                <option value="morning-1"
+                        selected="@(bookingSlotValue == "morning-1")">
+
                     รอบเช้า 1 · 08:00–10:00
+
                 </option>
 
-                <option value="morning-2">
+
+                <option value="morning-2"
+                        selected="@(bookingSlotValue == "morning-2")">
+
                     รอบเช้า 2 · 10:00–12:00
+
                 </option>
 
-                <option value="afternoon-1">
+
+                <option value="afternoon-1"
+                        selected="@(bookingSlotValue == "afternoon-1")">
+
                     รอบบ่าย 1 · 13:00–15:00
+
                 </option>
 
-                <option value="afternoon-2">
+
+                <option value="afternoon-2"
+                        selected="@(bookingSlotValue == "afternoon-2")">
+
                     รอบบ่าย 2 · 15:00–17:00
+
                 </option>
+
 
             </select>
+
         </label>
 
     </div>
 
+
+    <!-- ===================================================== -->
+    <!-- จำนวนผู้เข้าร่วม -->
+    <!-- ===================================================== -->
+
     <label>
+
         จำนวนผู้เข้าร่วม
 
         <input name="attendeesCount"
                type="number"
                min="1"
-               value="@(Context.Request.Form["attendeesCount"].ToString() == ""
-                   ? "1"
-                   : Context.Request.Form["attendeesCount"].ToString())"
+               value="@attendeesValue"
                required />
+
     </label>
 
+
+    <!-- ===================================================== -->
+    <!-- ปุ่ม -->
+    <!-- ===================================================== -->
+
     <div class="actions">
+
 
         <a class="outline-button"
            asp-controller="Home"
            asp-action="Index">
+
             ยกเลิก
+
         </a>
+
 
         <button class="button"
                 type="submit">
+
             บันทึกการจอง
+
         </button>
+
 
     </div>
 
