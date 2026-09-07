@@ -1,27 +1,28 @@
 @model RoomBooking.Web.Models.DashboardViewModel
 <link rel="stylesheet" href="~/css/dashboard.css" asp-append-version="true" />
+<link rel="stylesheet" href="~/css/dashboard-modern.css" asp-append-version="true" />
 @{ ViewData["Title"]="Dashboard"; }
 <div class="dashboard-page">
 <div class="page-heading compact-heading">
     <div>
         <span class="eyebrow">ROOMBOOKING · MAKUB CENTER</span>
-        <h1>ภาพรวมการจองห้องประชุมของบริษัท</h1>
+        <h1 data-i18n="dashboard.title">ภาพรวมการจองห้องประชุมของบริษัท</h1>
     </div>
-    <a class="button" asp-controller="Reservations" asp-action="Create">+ จองห้องประชุม</a>
+    <a class="button" data-i18n="common.book" asp-controller="Reservations" asp-action="Create">+ จองห้องประชุม</a>
 </div>
 <section class="metrics">
     <div>
-    <span>ห้องประชุมทั้งหมด</span>
+        <span data-i18n="dashboard.total">ห้องประชุมทั้งหมด</span>
     <strong>@Model.RoomCount</strong>
     <small>ห้อง</small>
     </div>
     <div>
-        <span>การจองวันนี้</span>
+        <span data-i18n="dashboard.today">การจองวันนี้</span>
         <strong>@Model.TodayReservations</strong>
         <small>รายการ</small>
     </div>
     <div class="featured">
-        <span>ห้องที่ว่างตอนนี้</span>
+        <span data-i18n="dashboard.available">ห้องที่ว่างตอนนี้</span>
         <strong>@Model.AvailableRooms</strong>
         <small>พร้อมใช้งาน</small>
     </div>
@@ -29,7 +30,7 @@
 <section class="content-grid">
     <article class="panel">
         <div class="panel-heading">
-            <h2>การจองวันนี้</h2>
+            <h2 data-i18n="dashboard.today">การจองวันนี้</h2>
             <a asp-controller="Reservations" asp-action="Create">เพิ่มการจอง</a>
             </div><div class="dashboard-filters">
                 <input id="bookingSearch" type="search" placeholder="ค้นหาการจองหรือห้องประชุม..." />
@@ -40,6 +41,10 @@
                 </select>
             </div>
             <div id="bookingList">
+                @if (!Model.Reservations.Any())
+                {
+                    <div class="empty-state"><strong>ยังไม่มีการจองวันนี้</strong><span>เมื่อมีการจอง รายการจะแสดงที่นี่</span></div>
+                }
                 @foreach(var item in Model.Reservations) {
                     <div class="reservation booking-item" data-search="@item.Subject @item.RoomName" data-status="@item.Status">
                         <span class="calendar-icon">▣</span>
@@ -54,9 +59,13 @@
         </article>
         <article class="panel">
             <div class="panel-heading">
-                <h2>ห้องประชุม</h2>
+            <h2 data-i18n="nav.rooms">ห้องประชุม</h2>
                 <a asp-controller="Rooms" asp-action="Index">จัดการ</a>
             </div>
+            @if (!Model.Rooms.Any())
+            {
+                <div class="empty-state"><strong>ยังไม่มีห้องประชุม</strong><span>เพิ่มห้องเพื่อเริ่มต้นใช้งาน</span></div>
+            }
             @foreach(var room in Model.Rooms) {
                 <div class="room-line">
                     <span class="room-icon">▦</span>

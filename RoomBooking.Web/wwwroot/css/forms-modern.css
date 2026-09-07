@@ -1,0 +1,165 @@
+.form-card {
+    position: relative
+}
+
+.form-card>label {
+    padding: 16px 0;
+    border-bottom: 1px solid var(--sb-line)
+}
+
+.form-card>label:first-child {
+    padding-top: 0
+}
+
+.form-card input,
+.form-card select {
+    min-height: 44px
+}
+
+.form-card input:invalid:not(:placeholder-shown) {
+    border-color: #ff7070
+}
+
+.form-card .actions {
+    position: sticky;
+    bottom: 12px;
+    z-index: 3;
+    background: color-mix(in srgb, var(--sb-surface) 94%, transparent);
+    backdrop-filter: blur(14px);
+    border: 1px solid var(--sb-line);
+    border-radius: 16px;
+    padding: 14px;
+    margin: 22px -8px -8px
+}
+
+.form-card .actions .button {
+    min-height: 44px
+}
+
+.check-label {
+    display: flex !important;
+    align-items: center;
+    gap: 8px
+}
+
+.form-card .alert {
+    border-radius: 14px;
+    border: 1px solid rgba(255, 112, 112, .3);
+    background: rgba(255, 112, 112, .12);
+    color: #ff9b9b
+}
+
+.rb-confirm {
+    position: fixed;
+    inset: 0;
+    z-index: 3000;
+    display: grid;
+    place-items: center;
+    background: rgba(7, 7, 20, .7);
+    backdrop-filter: blur(8px);
+    padding: 20px
+}
+
+.rb-confirm-card {
+    width: min(420px, 100%);
+    background: var(--sb-surface);
+    border: 1px solid var(--sb-line);
+    border-radius: 20px;
+    padding: 24px;
+    color: var(--sb-text);
+    box-shadow: 0 24px 80px rgba(0, 0, 0, .35)
+}
+
+.rb-confirm-card h3 {
+    margin: 0 0 8px
+}
+
+.rb-confirm-card p {
+    color: var(--sb-muted)
+}
+
+.rb-confirm-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 20px
+}
+
+.rb-toast-stack {
+    position: fixed;
+    right: 24px;
+    bottom: 24px;
+    z-index: 3200;
+    display: grid;
+    gap: 10px;
+    width: min(360px, calc(100vw - 32px))
+}
+
+.rb-toast {
+    padding: 14px 16px;
+    border: 1px solid rgba(45, 212, 191, .35);
+    border-radius: 14px;
+    background: var(--sb-surface);
+    color: var(--sb-text);
+    box-shadow: 0 18px 48px rgba(0, 0, 0, .25);
+    animation: rb-toast-in .22s ease both
+}
+
+.rb-toast.error {
+    border-color: rgba(255, 112, 112, .45)
+}
+
+.empty-state,
+.error-state {
+    display: grid;
+    place-items: center;
+    gap: 8px;
+    min-height: 180px;
+    padding: 28px;
+    text-align: center;
+    border: 1px dashed var(--sb-line);
+    border-radius: 18px;
+    color: var(--sb-muted)
+}
+
+.empty-state strong,
+.error-state strong {
+    color: var(--sb-text);
+    font-size: 1.05rem
+}
+
+.skeleton {
+    position: relative;
+    overflow: hidden;
+    background: color-mix(in srgb, var(--sb-text) 9%, transparent);
+    border-radius: 10px;
+    color: transparent !important;
+    pointer-events: none
+}
+
+.skeleton::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    transform: translateX(-100%);
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, .16), transparent);
+    animation: rb-skeleton 1.25s infinite
+}
+
+@keyframes rb-toast-in {
+    from {
+        opacity: 0;
+        transform: translateY(10px)
+    }
+
+    to {
+        opacity: 1;
+        transform: none
+    }
+}
+
+@keyframes rb-skeleton {
+    to {
+        transform: translateX(100%)
+    }
+}

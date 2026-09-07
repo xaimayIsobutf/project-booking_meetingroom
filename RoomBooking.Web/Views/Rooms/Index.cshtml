@@ -101,11 +101,11 @@
 </style>
 <div class="directory-heading">
     <div><span class="eyebrow">MEETING ROOM DIRECTORY</span>
-        <h1>Meeting room directory</h1>
-        <p>ข้อมูลห้องประชุมของบริษัท พร้อมค้นหาและกรองตามสถานะ</p>
+        <h1 data-i18n="rooms.directory">Meeting room directory</h1>
+        <p data-i18n="rooms.description">ข้อมูลห้องประชุมของบริษัท พร้อมค้นหาและกรองตามสถานะ</p>
     </div>
     <div class="directory-actions"><a class="outline-button" asp-controller="Reservations"
-                                          asp-action="Create">จองห้อง</a><button class="button" type="button" id="openCreateRoom">+
+                                          asp-action="Create" data-i18n="common.book">จองห้อง</a><button class="button" type="button" id="openCreateRoom" data-i18n="rooms.add">+
         เพิ่มห้องประชุม</button></div>
     </div>
     <section class="panel room-list-panel">
@@ -119,6 +119,14 @@
         <div class="room-table">
                 <div class="room-table-head"><span>ห้องประชุม</span><span>ขนาดห้อง</span><span>ตึก /
                 ชั้น</span><span>รองรับ</span><span>อุปกรณ์</span><span>สถานะ</span><span>การแชร์</span><span>การจัดการ</span></div>
+                @if (!Model.Any())
+                {
+                    <div class="empty-state">
+                        <strong>ยังไม่มีห้องประชุม</strong>
+                        <span>เพิ่มห้องแรกเพื่อเริ่มจัดการพื้นที่ประชุม</span>
+                        <button class="button" type="button" id="openCreateRoom">+ เพิ่มห้องประชุม</button>
+                    </div>
+                }
                 @foreach (var room in Model)
                 {
                     <div class="room-table-row room-item"

@@ -4,6 +4,8 @@
 
 @inject IAppTime AppTime
 
+<link rel="stylesheet" href="~/css/reservations-modern.css" asp-append-version="true" />
+
 @{
     ViewData["Title"] = "Reservations";
 
@@ -20,7 +22,7 @@
     <div>
         <span class="eyebrow">RESERVATION MANAGEMENT</span>
 
-        <h1>รายการจองห้อง</h1>
+        <h1 data-i18n="reservations.title">รายการจองห้อง</h1>
 
         <p>
             ตรวจสอบและจัดการการจองห้องประชุมทั้งหมด
@@ -75,6 +77,15 @@
             <span></span>
 
         </div>
+
+        @if (!Model.Any())
+        {
+            <div class="empty-state">
+                <strong>ยังไม่มีรายการจอง</strong>
+                <span>สร้างการจองห้องประชุมรายการแรกเพื่อเริ่มใช้งาน</span>
+                <a class="button" asp-action="Create">+ จองห้องประชุม</a>
+            </div>
+        }
 
         @foreach (var item in Model)
         {

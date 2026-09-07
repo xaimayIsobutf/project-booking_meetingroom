@@ -9,12 +9,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>เข้าสู่ระบบ - RoomBooking</title>
     <link rel="stylesheet" href="~/css/login.css" asp-append-version="true" />
+    <script>document.documentElement.dataset.theme = localStorage.getItem('roombooking-theme-v2') || 'dark';</script>
 </head>
 
 <body class="login-page">
     <main class="login-card">
-        <div class="brand-mark">rb</div><span class="eyebrow">ROOMBOOKING · MAKUB CENTER</span>
-        <h1>เข้าสู่ระบบ</h1>
+        <img class="login-logo" src="~/brand/logo-startbox.png" alt="Startbox" /><span class="eyebrow">STARTBOX · ROOMBOOKING</span>
+        <h1 data-i18n="login.title">เข้าสู่ระบบ</h1>
         <p class="login-subtitle">จัดการการจองห้องประชุมของคุณ</p>
         <form asp-action="Login" method="post">
             <div asp-validation-summary="All" class="login-error"></div><label>บริษัท<select name="tenantId"
@@ -24,7 +25,7 @@
     </select></label><label>อีเมล<input name="email"
                                         type="email" placeholder="name@company.com" required /></label><label>รหัสผ่าน<input name="password"
                                                                                          type="password" placeholder="••••••••" required /></label><button type="submit">เข้าสู่ระบบ</button>
-</form><small class="demo-note">Demo: ใช้อีเมลและรหัสผ่านใดก็ได้</small>
+</form><small class="demo-note">ระบบจองห้องประชุมสำหรับทีมของคุณ</small>
 </main>
 </body>
 </html>

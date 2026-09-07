@@ -1,0 +1,6 @@
+namespace RoomBooking.Domain.Entities;
+
+public class AuditLog { public long Id { get; set; } public int CompanyId { get; set; } public int? ActorUserId { get; set; } public string Action { get; set; } = ""; public string EntityType { get; set; } = ""; public int? EntityId { get; set; } public string Metadata { get; set; } = ""; public DateTime CreatedAt { get; set; } = DateTime.UtcNow; }
+public class CompanyPolicy { public int Id { get; set; } public int CompanyId { get; set; } public int MinimumDurationMinutes { get; set; } = 30; public int MaximumDurationMinutes { get; set; } = 120; public int AdvanceBookingDays { get; set; } = 30; public int ApprovalDeadlineMinutes { get; set; } = 30; public int CheckInGraceMinutes { get; set; } = 15; }
+public class CompanyHoliday { public int Id { get; set; } public int CompanyId { get; set; } public DateTime Date { get; set; } public string Name { get; set; } = ""; public bool BookingAllowed { get; set; } }
+public class BusinessHour { public int Id { get; set; } public int CompanyId { get; set; } public int DayOfWeek { get; set; } public TimeSpan? OpensAt { get; set; } public TimeSpan? ClosesAt { get; set; } public bool IsClosed { get; set; } }

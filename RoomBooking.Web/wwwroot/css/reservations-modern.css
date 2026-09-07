@@ -1,0 +1,72 @@
+.reservation-toolbar,
+.report-filters {
+    position: sticky;
+    top: 12px;
+    z-index: 5;
+    background: color-mix(in srgb, var(--sb-surface) 92%, transparent);
+    backdrop-filter: blur(14px);
+    border: 1px solid var(--sb-line);
+    border-radius: 18px;
+    padding: 14px;
+    margin-bottom: 18px
+}
+
+.reservation-row,
+.approval-row {
+    background: var(--sb-surface) !important;
+    border: 1px solid var(--sb-line) !important;
+    border-radius: 16px !important;
+    margin-bottom: 10px !important;
+    transition: transform .2s ease, box-shadow .2s ease !important
+}
+
+.reservation-row:hover,
+.approval-row:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 28px rgba(0, 0, 0, .16) !important
+}
+
+.tag-pending {
+    color: #ffb52e !important;
+    background: rgba(255, 181, 46, .14) !important
+}
+
+.tag-approved,
+.tag-confirmed {
+    color: #59bfa9 !important;
+    background: rgba(89, 191, 169, .14) !important
+}
+
+.tag-rejected {
+    color: #ff7070 !important;
+    background: rgba(255, 112, 112, .14) !important
+}
+
+.tag-cancelled {
+    color: var(--sb-muted) !important;
+    background: var(--sb-surface-2) !important
+}
+
+.action-hint {
+    border: 1px solid var(--sb-line) !important;
+    background: var(--sb-surface-2) !important;
+    color: var(--sb-muted) !important
+}
+
+.reservation-list-panel { overflow: visible }
+.reservation-list { display: grid; gap: 10px }
+.reservation-list-head,
+.reservation-list-row {
+    display: grid;
+    grid-template-columns: minmax(180px, 1.4fr) minmax(140px, 1fr) minmax(130px, 1fr) minmax(180px, 1.1fr) minmax(110px, .7fr) minmax(150px, .9fr);
+    align-items: center;
+    gap: 14px;
+}
+.reservation-list-head { padding: 0 18px 10px; color: var(--sb-muted); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .04em }
+.reservation-list-row { padding: 16px 18px; background: var(--sb-surface); border: 1px solid var(--sb-line); border-radius: 16px; color: var(--sb-text); transition: transform .2s ease, box-shadow .2s ease }
+.reservation-list-row:hover { transform: translateY(-2px); box-shadow: 0 12px 28px rgba(0,0,0,.16) }
+.reservation-list-row small { display: block; margin-top: 4px; color: var(--sb-muted) }
+.reservation-actions { display: flex; align-items: center; justify-content: flex-end; gap: 8px; flex-wrap: wrap }
+.reservation-actions form { margin: 0 }
+@media (max-width: 980px) { .reservation-list-head { display: none } .reservation-list-row { grid-template-columns: 1fr 1fr; gap: 10px } .reservation-actions { justify-content: flex-start } }
+@media (max-width: 560px) { .reservation-list-row { grid-template-columns: 1fr; padding: 15px } .reservation-actions { justify-content: flex-start } }

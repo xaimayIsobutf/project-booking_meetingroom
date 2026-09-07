@@ -1,0 +1,96 @@
+.calendar-panel {
+    border: 1px solid var(--sb-line) !important;
+    border-radius: 20px !important;
+    overflow: hidden
+}
+
+.calendar-toolbar {
+    position: sticky;
+    top: 12px;
+    z-index: 4;
+    background: color-mix(in srgb, var(--sb-surface) 92%, transparent) !important;
+    backdrop-filter: blur(14px);
+    border-bottom: 1px solid var(--sb-line);
+    padding: 16px !important
+}
+
+.calendar-view-switch a {
+    border-color: var(--sb-line) !important;
+    color: var(--sb-muted) !important;
+    background: var(--sb-surface) !important
+}
+
+.calendar-view-switch a.active {
+    background: linear-gradient(110deg, #c52a9f, #7928ca) !important;
+    color: #fff !important;
+    border-color: transparent !important
+}
+
+.calendar-day {
+    border-color: var(--sb-line) !important;
+    background: var(--sb-surface) !important
+}
+
+.calendar-day.today {
+    background: color-mix(in srgb, #70b7ff 12%, var(--sb-surface)) !important
+}
+
+.calendar-event {
+    border-left-color: #c52a9f !important;
+    background: rgba(197, 42, 159, .14) !important;
+    color: #d88bff !important
+}
+
+.weekly-row>div {
+    border-color: var(--sb-line) !important
+}
+
+.weekly-head {
+    background: var(--sb-surface-2) !important
+}
+
+.weekly-free {
+    background: rgba(89, 191, 169, .14) !important;
+    color: #59bfa9 !important
+}
+
+.weekly-booked.morning {
+    background: rgba(255, 181, 46, .14) !important;
+    color: #ffb52e !important
+}
+
+.weekly-booked.afternoon {
+    background: rgba(255, 112, 112, .14) !important;
+    color: #ff7070 !important
+}
+
+/* Calendar Room visual system */
+.calendar-heading { align-items: flex-end; margin-bottom: 22px }
+.calendar-heading p { max-width: 620px }
+.room-calendar-panel { overflow: hidden; border: 1px solid var(--sb-line); border-radius: 24px; box-shadow: 0 18px 50px rgba(0,0,0,.12) }
+.room-calendar-top { display: grid; grid-template-columns: minmax(180px,.8fr) minmax(260px,1.3fr) auto; align-items: end; gap: 16px; padding: 20px; background: linear-gradient(135deg, color-mix(in srgb, var(--sb-surface) 96%, #c52a9f), var(--sb-surface)); border-bottom: 1px solid var(--sb-line) }
+.room-calendar-top label { display:block; margin-bottom: 7px; color: var(--sb-muted); font-size: .78rem; font-weight: 800; text-transform: uppercase; letter-spacing: .05em }
+.room-calendar-top input, .room-calendar-top select { width: 100%; min-height: 46px; border: 1px solid var(--sb-line); border-radius: 13px; background: var(--sb-surface); color: var(--sb-text); padding: 0 14px; font: inherit }
+.calendar-filters { display: grid; grid-template-columns: 1fr 1fr; gap: 10px }
+.calendar-legend { display:flex; gap: 12px; align-items:center; justify-content:flex-end; white-space:nowrap; color:var(--sb-muted); font-size:.8rem }
+.calendar-legend span { display:inline-flex; align-items:center; gap:6px }
+.calendar-legend i { width:10px; height:10px; border-radius:50%; display:inline-block }
+.legend-free { background:#59bfa9 }.legend-booked { background:#ffb52e }
+.availability-table, .weekly-table { overflow-x:auto; padding: 18px }
+.availability-row { min-width: 760px; display:grid; grid-template-columns: minmax(190px,1.3fr) repeat(4,minmax(130px,1fr)); gap:10px; margin-bottom:10px }
+.availability-head { color:var(--sb-muted); font-size:.75rem; font-weight:800; text-transform:uppercase; letter-spacing:.05em; padding: 0 12px 6px }
+.room-cell { display:flex; flex-direction:column; justify-content:center; min-height:74px; padding: 12px 14px; background:var(--sb-surface-2); border:1px solid var(--sb-line); border-radius:14px }
+.room-cell b { color:var(--sb-text); font-size:.92rem }.room-cell small { margin-top:5px; color:var(--sb-muted) }
+.availability-slot { min-height:74px; display:grid; place-items:center; border:1px solid transparent; border-radius:14px; font-weight:800; text-decoration:none; transition:transform .2s ease, border-color .2s ease, box-shadow .2s ease }
+.availability-slot:hover { transform:translateY(-2px); border-color:var(--sb-accent-4); box-shadow:0 8px 18px rgba(81,103,201,.16) }
+.availability-slot.free { background:rgba(89,191,169,.13); color:#3ca88e }.availability-slot.booked { background:rgba(255,181,46,.15); color:#d98b00 }
+.weekly-title { display:flex; align-items:center; justify-content:space-between; padding:20px 20px 4px; color:var(--sb-text); font-size:1.05rem }
+.weekly-table { padding-top:14px }.weekly-row { min-width:980px; display:grid; grid-template-columns:minmax(190px,1.3fr) repeat(7,minmax(112px,1fr)); gap:8px; margin-bottom:8px }
+.weekly-row > div { border:0!important; border-radius:14px; padding:10px; min-height:78px; background:var(--sb-surface-2) }
+.weekly-head > div { min-height:48px; display:grid; place-items:center; background:transparent; color:var(--sb-muted); font-size:.75rem; font-weight:800; text-transform:uppercase }
+.weekly-head > div:not(:first-child) { background:color-mix(in srgb,var(--sb-accent-4) 10%,var(--sb-surface)); color:var(--sb-accent-4) }
+.weekly-day { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:6px; align-content:center; overflow:hidden }
+.weekly-free, .weekly-booked { display:grid; place-items:center; min-height:34px; border-radius:9px; font-size:.72rem; font-weight:800; text-decoration:none }
+.weekly-free:hover { outline:2px solid rgba(89,191,169,.35) }
+.weekly-free, .weekly-booked { min-width:0; max-width:100%; overflow:hidden; white-space:nowrap; text-overflow:ellipsis; padding:0 5px }
+@media (max-width: 760px) { .room-calendar-top { grid-template-columns:1fr; align-items:stretch } .calendar-filters { grid-template-columns:1fr } .calendar-legend { justify-content:flex-start } .availability-table,.weekly-table { padding:12px } }

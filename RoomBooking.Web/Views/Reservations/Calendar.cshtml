@@ -5,6 +5,8 @@
 
 @inject IAppTime AppTime
 
+<link rel="stylesheet" href="~/css/calendar-modern.css" asp-append-version="true" />
+
 @{
     var date = (DateTime)ViewBag.CalendarDate;
 
@@ -44,7 +46,7 @@
     <div>
         <span class="eyebrow">ROOM AVAILABILITY</span>
 
-        <h1>Calendar Room</h1>
+        <h1 data-i18n="calendar.title">Calendar Room</h1>
 
         <p>
             ตรวจสอบห้องว่างตามวันและช่วงเวลาที่ต้องการจอง

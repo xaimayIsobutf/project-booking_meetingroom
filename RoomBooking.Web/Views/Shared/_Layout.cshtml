@@ -16,49 +16,49 @@
     <link rel="stylesheet" href="~/css/approvals.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/rooms.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/share-room.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/theme.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/responsive.css" asp-append-version="true" />
+    <script>document.documentElement.dataset.theme = localStorage.getItem('roombooking-theme-v2') || 'dark';</script>
 </head>
 
 <body>
     <div class="app-shell">
         <aside class="sidebar">
             <div class="brand">
-                <div class="brand-mark">rb</div>
-                <div><b>RoomBooking</b><small>Meeting room center</small></div><button class="menu-toggle">☰</button>
+                <img class="brand-logo" src="~/brand/logo-startbox.png" alt="Startbox" /><button class="menu-toggle">☰</button>
             </div>
-            <div class="sidebar-label">WORKSPACE</div>
-            <nav class="side-nav"><a asp-controller="Home" asp-action="Index"><span>▦</span> Dashboard</a><a
-                asp-controller="Rooms" asp-action="Index"><span>▥</span> Meeting rooms</a><a
-                asp-controller="Reservations" asp-action="Calendar"><span>▣</span> Calendar Room</a><a asp-controller="Reports" asp-action="Index"><span>▤</span> Reports</a><a
+            <div class="sidebar-label" data-i18n="nav.workspace">WORKSPACE</div>
+            <nav class="side-nav"><a data-i18n="nav.dashboard" asp-controller="Home" asp-action="Index"><span>▦</span> Dashboard</a><a data-i18n="nav.rooms"
+                asp-controller="Rooms" asp-action="Index"><span class="nav-icon nav-room" aria-hidden="true"></span> Meeting rooms</a><a data-i18n="nav.calendar"
+                asp-controller="Reservations" asp-action="Calendar"><span>▣</span> Calendar Room</a><a data-i18n="nav.reports" asp-controller="Reports" asp-action="Index"><span>▤</span> Reports</a><a data-i18n="nav.reservations"
                 asp-controller="Reservations" asp-action="Index"><span>⌑</span>
                 Reservations</a>@if(User.IsInRole("SuperAdmin")||User.IsInRole("TenantAdmin")||User.IsInRole("Approver")){
                 <a
-                asp-controller="Reservations" asp-action="Approvals"><span>✓</span> Approvals</a>
+                asp-controller="Reservations" asp-action="Approvals"><span>✓</span> <span data-i18n="nav.approvals">Approvals</span></a>
             }
         </nav>
-        <div class="sidebar-label">TEAM</div>
-        <nav class="side-nav"><a asp-controller="Users" asp-action="Index"><span>♙</span> Members</a></nav>
-        <div class="sidebar-bottom">
-            <form asp-controller="Account" asp-action="Logout" method="post"><button
-                type="submit">ออกจากระบบ</button></form>
-            </div>
+        <div class="sidebar-label" data-i18n="nav.team">TEAM</div>
+        <nav class="side-nav"><a data-i18n="nav.members" asp-controller="Users" asp-action="Index"><span>♙</span> Members</a></nav>
+        <div class="sidebar-bottom"></div>
         </aside>
         <div class="main-shell">
             <header class="topbar">
                 <div><span class="breadcrumb">Workspace</span>
                     <h2>@ViewData["Title"]</h2>
                 </div>
-                <div class="top-actions"><button>?</button><a class="notification-link" asp-controller="Reservations" asp-action="Approvals">♧<i>@pendingCount</i></a><button>EN⌄</button>
+                <div class="top-actions"><button class="icon-button">?</button><a class="notification-link" asp-controller="Reservations" asp-action="Approvals">♧<i>@pendingCount</i></a><button class="theme-toggle" type="button" aria-label="เปลี่ยนโหมดสี"><span>☼</span><span>☾</span></button><select class="language-select" aria-label="ภาษา"><option value="en">EN</option><option value="th">ไทย</option><option value="lo">ລາວ</option></select>
                     <div class="company"><span class="avatar">@(User.Identity?.Name?.FirstOrDefault() ?? 'S')</span>
                         <div><b>@(User.Identity?.Name ?? "Guest")</b><small class="role-badge">@RoleLabel(User)</small>
-                        </div>⌄
+                        </div>
                     </div>
+                    <form class="header-logout" asp-controller="Account" asp-action="Logout" method="post"><button type="submit" title="ออกจากระบบ">↪ <span>ออกจากระบบ</span></button></form>
                 </div>
             </header>
             <main class="main-content">@RenderBody()</main>
         </div>
     </div>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="~/js/site.js" asp-append-version="true"></script>@await RenderSectionAsync("Scripts", required: false)
+    <script src="~/js/site.js" asp-append-version="true"></script><script src="~/js/ux.js" asp-append-version="true"></script>@await RenderSectionAsync("Scripts", required: false)
 </body>
 
 </html>

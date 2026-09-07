@@ -1,0 +1,87 @@
+.dashboard-page {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 10px 0 48px
+}
+
+.dashboard-page .page-heading {
+    margin: 28px 0 24px
+}
+
+.dashboard-page .page-heading h1 {
+    font-size: clamp(1.8rem, 3vw, 2.5rem);
+    max-width: 640px;
+    line-height: 1.12
+}
+
+.dashboard-page .metrics {
+    gap: 12px;
+    margin-bottom: 16px
+}
+
+.dashboard-page .metrics>div {
+    min-height: 132px;
+    padding: 20px;
+    border-radius: 18px
+}
+
+.dashboard-page .metrics strong {
+    font-size: 2rem
+}
+
+.dashboard-page .content-grid {
+    gap: 16px;
+    margin-top: 0
+}
+
+.dashboard-page .panel {
+    padding: 20px;
+    border-radius: 18px
+}
+
+.dashboard-page .panel-heading h2 {
+    font-size: 1.15rem
+}
+
+.dashboard-page .reservation,
+.dashboard-page .room-line {
+    padding: 14px 0
+}
+
+.dashboard-page .button {
+    box-shadow: 0 8px 18px rgba(197, 42, 159, .22)
+}
+
+.dashboard-page .calendar-icon,
+.dashboard-page .room-icon {
+    background: rgba(197, 42, 159, .14);
+    color: #c52a9f
+}
+
+.dashboard-page .tag-free,
+.dashboard-page .room-state {
+    color: #59bfa9
+}
+
+.dashboard-page .tag-free {
+    background: rgba(89, 191, 169, .14)
+}
+
+@media(max-width:700px) {
+    .dashboard-page {
+        padding-top: 0
+    }
+
+    .dashboard-page .page-heading {
+        margin-top: 14px
+    }
+
+    .dashboard-page .page-heading h1 {
+        font-size: 1.6rem
+    }
+
+    .dashboard-page .metrics>div {
+        min-height: 110px;
+        padding: 16px
+    }
+}
