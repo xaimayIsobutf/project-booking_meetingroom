@@ -42,6 +42,19 @@
         }).ToList();
 }
 
+<div class="resource-calendar-shell">
+<aside class="resource-calendar-sidebar">
+    <div class="resource-month-nav"><b>@date.ToString("MMMM yyyy")</b><span>‹　›</span></div>
+    <div class="resource-mini-week"><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span><span>S</span></div>
+    <div class="resource-mini-days">
+        @for (var mini = -2; mini <= 32; mini++) { var miniDate = new DateTime(date.Year, date.Month, 1).AddDays(mini); <a class="@(miniDate.Date == date.Date ? "selected" : "")" asp-action="Calendar" asp-route-date="@miniDate.ToString("yyyy-MM-dd")" asp-route-view="@(isWeek ? "week" : null)">@miniDate.Day</a> }
+    </div>
+    <div class="resource-sidebar-label">ห้องประชุม</div>
+    @foreach (var resourceRoom in rooms) { <a class="resource-room-filter" asp-action="Calendar" asp-route-date="@date.ToString("yyyy-MM-dd")" asp-route-view="@(isWeek ? "week" : null)"><i></i><span>@resourceRoom.Name</span></a> }
+    <div class="resource-sidebar-label">ตัวกรอง</div>
+    <input class="resource-filter-input" placeholder="ค้นหา..." />
+</aside>
+<div class="resource-calendar-main">
 <div class="page-heading calendar-heading">
     <div>
         <span class="eyebrow">ROOM AVAILABILITY</span>
@@ -377,3 +390,5 @@
         );
     }
 </script>
+</div>
+</div>
