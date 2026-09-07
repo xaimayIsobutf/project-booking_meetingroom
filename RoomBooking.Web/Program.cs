@@ -7,7 +7,7 @@ using RoomBooking.Web.Infrastructure;
 
 static string GetDatabaseConnectionString(IConfiguration configuration)
 {
-    var value = configuration.GetConnectionString("DefaultConnection")
+    var value = configuration.GetConnectionString("DefaultConnection")?.Trim().Trim('"')
         ?? throw new InvalidOperationException("ConnectionStrings:DefaultConnection is not configured.");
 
     if (!value.StartsWith("postgres://", StringComparison.OrdinalIgnoreCase) &&
