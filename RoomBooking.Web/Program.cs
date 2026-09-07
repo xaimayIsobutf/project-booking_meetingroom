@@ -4,6 +4,34 @@ using RoomBooking.Domain.Entities;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Identity;
 using RoomBooking.Web.Infrastructure;
+
+static string GetDatabaseConnectionString(IConfiguration configuration)
+{
+    var value = configuration.GetConnectionString("DefaultConnection")
+        ?? throw new InvalidOperationException("ConnectionStrings:DefaultConnection is not configured.");
+
+    if (!value.StartsWith("postgres://", StringComparison.OrdinalIgnoreCase) &&
+        !value.StartsWith("postgresql://", StringComparison.OrdinalIgnoreCase))
+        return value;
+
+    var uri = new Uri(value);
+    var userInfo = uri.UserInfo.Split(':', 2);
+    if (userInfo.Length != 2)
+        throw new InvalidOperationException("The PostgreSQL URI must include username and password.");
+
+    var builder = new Npgsql.NpgsqlConnectionStringBuilder
+    {
+        Host = uri.Host,
+        Port = uri.Port > 0 ? uri.Port : 5432,
+        Database = uri.AbsolutePath.Trim('/'),
+        Username = Uri.UnescapeDataString(userInfo[0]),
+        Password = Uri.UnescapeDataString(userInfo[1]),
+        SslMode = Npgsql.SslMode.Require,
+        TrustServerCertificate = true
+    };
+    return builder.ConnectionString;
+}
+
 var builder = WebApplication.CreateBuilder(args);
 
 
@@ -14,7 +42,7 @@ builder.Services.AddAuthorization();
 builder.Services.AddDistributedMemoryCache();
 builder.Services.AddSession();
 builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
-builder.Services.AddDbContext<RoomBookingDbContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+builder.Services.AddDbContext<RoomBookingDbContext>(options => options.UseNpgsql(GetDatabaseConnectionString(builder.Configuration)));
 builder.Services.AddSingleton<IAppTime, AppTime>();
 
 
