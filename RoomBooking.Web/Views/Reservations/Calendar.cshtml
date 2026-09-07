@@ -52,7 +52,14 @@
             ตรวจสอบห้องว่างตามวันและช่วงเวลาที่ต้องการจอง
         </p>
 
-        <div class="calendar-view-switch">
+        <div class="calendar-scheduler-toolbar">
+            <div class="calendar-date-nav">
+                <a class="calendar-nav-button" asp-action="Calendar" asp-route-date="@date.AddDays(isWeek ? -7 : -1).ToString("yyyy-MM-dd")" asp-route-view="@(isWeek ? "week" : null)" aria-label="ก่อนหน้า">‹</a>
+                <a class="calendar-today-button" asp-action="Calendar" asp-route-date="@DateTime.Today.ToString("yyyy-MM-dd")" asp-route-view="@(isWeek ? "week" : null)">วันนี้</a>
+                <a class="calendar-nav-button" asp-action="Calendar" asp-route-date="@date.AddDays(isWeek ? 7 : 1).ToString("yyyy-MM-dd")" asp-route-view="@(isWeek ? "week" : null)" aria-label="ถัดไป">›</a>
+                <strong>@(isWeek ? $"{weekStart:dd/MM/yyyy} – {weekStart.AddDays(6):dd/MM/yyyy}" : date.ToString("dd/MM/yyyy"))</strong>
+            </div>
+            <div class="calendar-view-switch">
             <a class="@(isWeek ? "" : "active")"
                asp-action="Calendar"
                asp-route-date="@date.ToString("yyyy-MM-dd")">
@@ -65,6 +72,7 @@
                asp-route-view="week">
                 รายสัปดาห์
             </a>
+            </div>
         </div>
     </div>
 </div>
