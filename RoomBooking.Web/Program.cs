@@ -10,6 +10,12 @@ static string GetDatabaseConnectionString(IConfiguration configuration)
     var value = configuration.GetConnectionString("DefaultConnection")?.Trim().Trim('"')
         ?? throw new InvalidOperationException("ConnectionStrings:DefaultConnection is not configured.");
 
+    var uriStart = value.IndexOf("postgresql://", StringComparison.OrdinalIgnoreCase);
+    if (uriStart < 0)
+        uriStart = value.IndexOf("postgres://", StringComparison.OrdinalIgnoreCase);
+    if (uriStart > 0)
+        value = value[uriStart..].Trim().Trim('"', '\'');
+
     if (!value.StartsWith("postgres://", StringComparison.OrdinalIgnoreCase) &&
         !value.StartsWith("postgresql://", StringComparison.OrdinalIgnoreCase))
         return value;
