@@ -298,8 +298,15 @@ body,
 .room-table {
     border: 1px solid var(--sb-line) !important;
     border-radius: 20px !important;
-    overflow: hidden !important;
+    overflow-x: auto !important;
+    overflow-y: visible !important;
+    -webkit-overflow-scrolling: touch;
     background: var(--sb-surface) !important
+}
+
+.room-table-head,
+.room-table-row {
+    min-width: 980px;
 }
 
 .room-table-head {
