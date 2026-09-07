@@ -74,6 +74,17 @@
 .calendar-nav-button { font-size:1.5rem; line-height:1 }
 .calendar-today-button { color:var(--sb-accent-4) }
 .room-calendar-panel { overflow: hidden; border: 1px solid var(--sb-line); border-radius: 24px; box-shadow: 0 18px 50px rgba(0,0,0,.12) }
+.room-calendar-panel { background:var(--sb-surface); }
+.weekly-calendar-panel { border-radius:16px; }
+.weekly-calendar-panel .weekly-title { background:color-mix(in srgb,var(--sb-surface-2) 86%,#70b7ff); border-bottom:1px solid var(--sb-line); }
+.weekly-calendar-panel .weekly-table { padding:0; }
+.weekly-calendar-panel .weekly-row { gap:0; margin:0; border-bottom:1px solid var(--sb-line); }
+.weekly-calendar-panel .weekly-row > div { border-right:1px solid var(--sb-line)!important; border-radius:0; min-height:86px; background:var(--sb-surface); }
+.weekly-calendar-panel .weekly-row > div:first-child { background:var(--sb-surface-2); position:sticky; left:0; z-index:1; }
+.weekly-calendar-panel .weekly-head > div { min-height:58px; background:var(--sb-surface-2)!important; color:var(--sb-text); }
+.weekly-calendar-panel .weekly-head > div:not(:first-child) { background:color-mix(in srgb,var(--sb-accent-4) 10%,var(--sb-surface))!important; color:var(--sb-accent-4); }
+.weekly-calendar-panel .weekly-day { padding:10px; background:var(--sb-surface)!important; }
+.weekly-calendar-panel .weekly-free, .weekly-calendar-panel .weekly-booked { min-height:30px; border-radius:5px; }
 .room-calendar-top { display: grid; grid-template-columns: minmax(180px,.8fr) minmax(260px,1.3fr) auto; align-items: end; gap: 16px; padding: 20px; background: linear-gradient(135deg, color-mix(in srgb, var(--sb-surface) 96%, #c52a9f), var(--sb-surface)); border-bottom: 1px solid var(--sb-line) }
 .room-calendar-top label { display:block; margin-bottom: 7px; color: var(--sb-muted); font-size: .78rem; font-weight: 800; text-transform: uppercase; letter-spacing: .05em }
 .room-calendar-top input, .room-calendar-top select { width: 100%; min-height: 46px; border: 1px solid var(--sb-line); border-radius: 13px; background: var(--sb-surface); color: var(--sb-text); padding: 0 14px; font: inherit }
