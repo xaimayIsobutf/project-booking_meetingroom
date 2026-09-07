@@ -15,13 +15,9 @@
 
     ViewData["Title"] = "Calendar Room";
 
-    var slots = new[]
-    {
-        ("08:00", "10:00"),
-        ("10:00", "12:00"),
-        ("13:00", "15:00"),
-        ("15:00", "17:00")
-    };
+    var slots = Enumerable.Range(8, 12)
+        .Select(hour => ($"{hour:00}:00", $"{hour + 1:00}:00"))
+        .ToArray();
 
     var isWeek =
         (string?)ViewBag.CalendarView == "week";

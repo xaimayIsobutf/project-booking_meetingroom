@@ -108,11 +108,11 @@
 .calendar-legend i { width:10px; height:10px; border-radius:50%; display:inline-block }
 .legend-free { background:#59bfa9 }.legend-booked { background:#ffb52e }
 .availability-table, .weekly-table { overflow-x:auto; padding: 18px }
-.availability-row { min-width: 760px; display:grid; grid-template-columns: minmax(190px,1.3fr) repeat(4,minmax(130px,1fr)); gap:10px; margin-bottom:10px }
+.availability-row { min-width: 1180px; display:grid; grid-template-columns: minmax(190px,1.3fr) repeat(12,minmax(82px,1fr)); gap:4px; margin-bottom:6px }
 .availability-head { color:var(--sb-muted); font-size:.75rem; font-weight:800; text-transform:uppercase; letter-spacing:.05em; padding: 0 12px 6px }
 .room-cell { display:flex; flex-direction:column; justify-content:center; min-height:74px; padding: 12px 14px; background:var(--sb-surface-2); border:1px solid var(--sb-line); border-radius:14px }
 .room-cell b { color:var(--sb-text); font-size:.92rem }.room-cell small { margin-top:5px; color:var(--sb-muted) }
-.availability-slot { min-height:74px; display:grid; place-items:center; border:1px solid transparent; border-radius:14px; font-weight:800; text-decoration:none; transition:transform .2s ease, border-color .2s ease, box-shadow .2s ease }
+.availability-slot { min-height:62px; display:grid; place-items:center; border:1px solid transparent; border-radius:6px; font-weight:800; font-size:.72rem; text-decoration:none; transition:transform .2s ease, border-color .2s ease, box-shadow .2s ease }
 .availability-slot:hover { transform:translateY(-2px); border-color:var(--sb-accent-4); box-shadow:0 8px 18px rgba(81,103,201,.16) }
 .availability-slot.free { background:rgba(89,191,169,.13); color:#3ca88e }.availability-slot.booked { background:rgba(255,181,46,.15); color:#d98b00 }
 .weekly-title { display:flex; align-items:center; justify-content:space-between; padding:20px 20px 4px; color:var(--sb-text); font-size:1.05rem }
