@@ -349,7 +349,9 @@ public class ReservationsController(
         DateTime date,
         string bookingSlot,
         int roomId,
-        int attendeesCount = 1)
+        int attendeesCount = 1,
+        string? startTime = null,
+        string? endTime = null)
     {
         ViewBag.RoomId = roomId;
 
@@ -402,11 +404,18 @@ public class ReservationsController(
                      new TimeSpan(17, 0, 0))
             };
 
+        (TimeSpan Start, TimeSpan End) selectedSlot = default;
+        if (TimeSpan.TryParse(startTime, out var customStart) &&
+            TimeSpan.TryParse(endTime, out var customEnd) &&
+            customEnd > customStart)
+        {
+            selectedSlot = (customStart, customEnd);
+        }
+
         if (
     string.IsNullOrWhiteSpace(subject) ||
-    !slots.TryGetValue(
-        bookingSlot ?? "",
-        out var selectedSlot) ||
+    ((!TimeSpan.TryParse(startTime, out customStart) || !TimeSpan.TryParse(endTime, out customEnd)) &&
+     !slots.TryGetValue(bookingSlot ?? "", out selectedSlot)) ||
     attendeesCount < 1)
 {
     ModelState.AddModelError(
