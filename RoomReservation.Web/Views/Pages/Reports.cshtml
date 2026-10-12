@@ -1,0 +1,93 @@
+@using RoomReservation.Domain.Enums
+@model RoomReservation.Web.Models.ReportPageModel
+@{ ViewData["Title"] = "Reports"; var zone = TimeZoneInfo.FindSystemTimeZoneById(Model.TimeZoneId); var valid = Model.Bookings.Where(x => x.Status != BookingStatus.Cancelled && x.Status != BookingStatus.NoShow).ToList(); var roomStats = Model.Rooms.Select(room => new { Room = room, Hours = valid.Where(x => x.RoomId == room.Id).Sum(x => (x.EndAtUtc - x.StartAtUtc).TotalHours), Count = valid.Count(x => x.RoomId == room.Id) }).OrderByDescending(x => x.Hours).ToList(); var maxRoomHours = roomStats.FirstOrDefault()?.Hours ?? 1; var peakHours = valid.GroupBy(x => TimeZoneInfo.ConvertTimeFromUtc(x.StartAtUtc, zone).Hour).OrderByDescending(x => x.Count()).Take(6).ToList(); }
+<section class="page-head reports-head"><div><span class="eyebrow" data-report-i18n="eyebrow">INSIGHTS</span><h1 data-report-i18n="title">Reports</h1><p data-report-i18n="subtitle">Understand how your rooms are being used.</p></div><a id="reportExportCsv" class="button primary" href="/api/v1/reports/export-csv?from=@Model.FromDate.ToString("yyyy-MM-dd")&to=@Model.ToDate.AddDays(1).ToString("yyyy-MM-dd")" download="room-bookings.csv" data-report-i18n="export">Export CSV</a></section>
+<form class="panel report-filters" method="get" action="/admin/reports"><div><label for="fromDate" data-report-i18n="from">From date</label><input id="fromDate" name="fromDate" type="date" value="@Model.FromDate.ToString("yyyy-MM-dd")" /></div><div><label for="toDate" data-report-i18n="to">To date</label><input id="toDate" name="toDate" type="date" value="@Model.ToDate.ToString("yyyy-MM-dd")" /></div><button class="button primary" type="submit" data-report-i18n="apply">Apply filters</button><a class="button ghost" href="/admin/reports" data-report-i18n="reset">Reset</a></form>
+<div class="stat-grid report-stat-grid"><div class="stat-card"><span data-report-i18n="total">Total bookings</span><strong>@Model.Total</strong><small>@Model.FromDate.ToString("dd MMM") – @Model.ToDate.ToString("dd MMM yyyy")</small></div><div class="stat-card"><span data-report-i18n="hours">Booked hours</span><strong>@Model.BookedHours.ToString("0.0")</strong><small data-report-i18n="excluding">Excluding cancelled and no-show</small></div><div class="stat-card"><span data-report-i18n="utilization">Room utilization</span><strong>@Model.UtilizationPercent.ToString("0")%</strong><small data-report-i18n="activeRooms">Based on active rooms</small></div><div class="stat-card"><span data-report-i18n="noShow">No-show</span><strong>@Model.NoShow</strong><small>@Model.AverageMinutes.ToString("0") <span data-report-i18n="minutes">min average</span></small></div></div>
+<div class="report-status-row"><span class="report-status-title" data-report-i18n="statusSummary">Booking status</span><span class="status confirmed">@Model.Confirmed <span data-report-i18n="confirmed">Confirmed</span></span><span class="status pending">@Model.Pending <span data-report-i18n="pending">Pending</span></span><span class="status cancelled">@Model.Cancelled <span data-report-i18n="cancelled">Cancelled</span></span><span class="status no-show">@Model.NoShow <span data-report-i18n="noShowLabel">No-show</span></span></div>
+<div class="report-grid"><section class="panel"><div class="panel-head"><div><h2 data-report-i18n="roomUsage">Room usage</h2><p class="muted-copy" data-report-i18n="roomUsageHint">Rooms ranked by booked hours.</p></div></div><div class="report-bars">@if (!roomStats.Any()) { <div class="empty-state" data-report-i18n="empty">No booking data for this period.</div> } @foreach (var row in roomStats) { var width = row.Hours == 0 ? 0 : Math.Max(5, row.Hours / maxRoomHours * 100); <div class="report-bar-row"><div class="report-bar-label"><b>@row.Room.Name</b><span>@row.Count <span data-report-i18n="bookings">bookings</span> · @row.Hours.ToString("0.0")h</span></div><div class="report-bar-track"><span style="width:@width.ToString("0")%"></span></div></div> }</div></section><section class="panel"><div class="panel-head"><div><h2 data-report-i18n="peak">Peak hours</h2><p class="muted-copy" data-report-i18n="peakHint">Most common booking start times.</p></div></div><div class="peak-list">@if (!peakHours.Any()) { <div class="empty-state" data-report-i18n="empty">No booking data for this period.</div> } @foreach (var group in peakHours) { <div class="peak-row"><b>@group.Key.ToString("00"):00</b><div class="peak-track"><span style="width:@Math.Max(8, group.Count() * 100 / peakHours.First().Count())%"></span></div><strong>@group.Count()</strong></div> }</div></section></div>
+<section class="panel report-table-panel"><div class="panel-head"><div><h2 data-report-i18n="details">Booking details</h2><p class="muted-copy"><span data-report-i18n="showing">Showing</span> <b id="reportVisibleCount">@Model.Bookings.Count</b> <span data-report-i18n="records">records</span></p></div></div><div class="report-detail-filters"><label><span data-report-i18n="searchLabel">Search</span><input id="reportDetailSearch" type="search" placeholder="Search meeting or organizer..." data-report-placeholder="searchDetail" /></label><label><span data-report-i18n="roomFilter">Room</span><select id="reportDetailRoom"><option value="" data-report-i18n="allRooms">All rooms</option>@foreach (var room in Model.Rooms) { <option value="@room.Id">@room.Name</option> }</select></label><label><span data-report-i18n="buildingFilter">Building</span><select id="reportDetailBuilding"><option value="" data-report-i18n="allBuildingsDetail">All buildings</option>@foreach (var building in Model.Rooms.Select(x => x.Building).Where(x => !string.IsNullOrWhiteSpace(x)).Distinct().OrderBy(x => x)) { <option value="@building">@building</option> }</select></label><label><span data-report-i18n="floorFilter">Floor</span><select id="reportDetailFloor"><option value="" data-report-i18n="allFloorsDetail">All floors</option>@foreach (var floor in Model.Rooms.Select(x => x.Floor).Distinct().OrderBy(x => x)) { <option value="@floor">@floor</option> }</select></label><label><span data-report-i18n="statusFilter">Status</span><select id="reportDetailStatus"><option value="" data-report-i18n="allStatusesDetail">All statuses</option>@foreach (var status in Enum.GetValues<BookingStatus>()) { <option value="@status">@status</option> }</select></label><label><span data-report-i18n="detailFrom">From</span><input id="reportDetailFrom" type="date" /></label><label><span data-report-i18n="detailTo">To</span><input id="reportDetailTo" type="date" /></label><button class="button ghost" id="reportDetailReset" type="button" data-report-i18n="resetDetail">Reset</button></div><div class="table-wrap"><table id="reportTable"><thead><tr><th data-report-i18n="meeting">Meeting</th><th data-report-i18n="room">Room</th><th data-report-i18n="organizer">Organizer</th><th data-report-i18n="dateTime">Date / time</th><th data-report-i18n="attendees">Attendees</th><th data-report-i18n="status">Status</th></tr></thead><tbody>@if (!Model.Bookings.Any()) { <tr><td colspan="6" class="empty-state" data-report-i18n="empty">No booking data for this period.</td></tr> } @foreach (var booking in Model.Bookings) { var start = TimeZoneInfo.ConvertTimeFromUtc(booking.StartAtUtc, zone); var end = TimeZoneInfo.ConvertTimeFromUtc(booking.EndAtUtc, zone); var room = Model.Rooms.FirstOrDefault(x => x.Id == booking.RoomId); var user = Model.Users.FirstOrDefault(x => x.Id == booking.UserId); <tr data-report-row data-room-id="@booking.RoomId" data-building="@(room?.Building ?? "")" data-floor="@(room?.Floor.ToString() ?? "")" data-status="@booking.Status" data-date="@start.ToString("yyyy-MM-dd")" data-search="@(booking.Title + " " + (room?.Name ?? "") + " " + (user?.DisplayName ?? "") + " " + (user?.Email ?? ""))"><td><a href="/bookings/@booking.Id"><b>@booking.Title</b></a></td><td>@(room?.Name ?? "-")</td><td>@(string.IsNullOrWhiteSpace(user?.DisplayName) ? user?.Email ?? "-" : user.DisplayName)</td><td>@start.ToString("dd/MM/yyyy HH:mm") – @end.ToString("HH:mm")</td><td>@booking.AttendeeCount</td><td><span class="status @booking.Status.ToString().ToLowerInvariant()" data-report-status="@booking.Status">@booking.Status</span></td></tr> }</tbody></table></div></section>
+@section Scripts { <script>
+(()=>{const lang=localStorage.getItem('roombooking-language')||'en',d={en:{eyebrow:'INSIGHTS',title:'Reports',subtitle:'Understand how your rooms are being used.',export:'Export CSV',from:'From date',to:'To date',apply:'Apply filters',reset:'Reset',total:'Total bookings',hours:'Booked hours',utilization:'Room utilization',noShow:'No-show',excluding:'Excluding cancelled and no-show',activeRooms:'Based on active rooms',minutes:'min average',statusSummary:'Booking status',confirmed:'Confirmed',pending:'Pending',cancelled:'Cancelled',noShowLabel:'No-show',roomUsage:'Room usage',roomUsageHint:'Rooms ranked by booked hours.',bookings:'bookings',peak:'Peak hours',peakHint:'Most common booking start times.',details:'Booking details',showing:'Showing',records:'records',meeting:'Meeting',room:'Room',dateTime:'Date / time',attendees:'Attendees',status:'Status',search:'Search bookings...',empty:'No booking data for this period.'},th:{eyebrow:'รายงาน',title:'รายงาน',subtitle:'ดูภาพรวมการใช้งานห้องประชุม',export:'ส่งออก CSV',from:'วันที่เริ่มต้น',to:'วันที่สิ้นสุด',apply:'ใช้ตัวกรอง',reset:'รีเซ็ต',total:'การจองทั้งหมด',hours:'ชั่วโมงที่จอง',utilization:'อัตราการใช้ห้อง',noShow:'ไม่มาใช้งาน',excluding:'ไม่รวมยกเลิกและไม่มาใช้งาน',activeRooms:'คำนวณจากห้องที่เปิดใช้งาน',minutes:'นาทีเฉลี่ย',statusSummary:'สถานะการจอง',confirmed:'ยืนยันแล้ว',pending:'รออนุมัติ',cancelled:'ยกเลิก',noShowLabel:'ไม่มาใช้งาน',roomUsage:'การใช้ห้อง',roomUsageHint:'เรียงตามจำนวนชั่วโมงที่ถูกจอง',bookings:'การจอง',peak:'ช่วงเวลาที่มีการจองสูงสุด',peakHint:'เวลาที่เริ่มจองบ่อยที่สุด',details:'รายละเอียดการจอง',showing:'แสดง',records:'รายการ',meeting:'หัวข้อประชุม',room:'ห้อง',dateTime:'วัน / เวลา',attendees:'ผู้เข้าร่วม',status:'สถานะ',search:'ค้นหาการจอง...',empty:'ไม่มีข้อมูลการจองในช่วงเวลานี้'},lo:{eyebrow:'ລາຍງານ',title:'ລາຍງານ',subtitle:'ເບິ່ງພາບລວມການໃຊ້ຫ້ອງປະຊຸມ',export:'ສົ່ງອອກ CSV',from:'ວັນທີເລີ່ມ',to:'ວັນທີສິ້ນສຸດ',apply:'ໃຊ້ຕົວກອງ',reset:'ລ້າງ',total:'ການຈອງທັງໝົດ',hours:'ຊົ່ວໂມງທີ່ຈອງ',utilization:'ອັດຕາໃຊ້ຫ້ອງ',noShow:'ບໍ່ມາໃຊ້',excluding:'ບໍ່ລວມຍົກເລີກ ແລະ ບໍ່ມາໃຊ້',activeRooms:'ຄຳນວນຈາກຫ້ອງທີ່ເປີດ',minutes:'ນາທີສະເລ່ຍ',statusSummary:'ສະຖານະການຈອງ',confirmed:'ຢືນຢັນແລ້ວ',pending:'ລໍຖ້າອະນຸມັດ',cancelled:'ຍົກເລີກ',noShowLabel:'ບໍ່ມາໃຊ້',roomUsage:'ການໃຊ້ຫ້ອງ',roomUsageHint:'ຈັດລຽງຕາມຊົ່ວໂມງທີ່ຈອງ',bookings:'ການຈອງ',peak:'ເວລາທີ່ຈອງຫຼາຍ',peakHint:'ເວລາເລີ່ມຈອງທີ່ພົບຫຼາຍ',details:'ລາຍລະອຽດການຈອງ',showing:'ສະແດງ',records:'ລາຍການ',meeting:'ຫົວຂໍ້',room:'ຫ້ອງ',dateTime:'ວັນ / ເວລາ',attendees:'ຜູ້ເຂົ້າຮ່ວມ',status:'ສະຖານະ',search:'ຄົ້ນຫາການຈອງ...',empty:'ບໍ່ມີຂໍ້ມູນໃນຊ່ວງນີ້'}}[lang]||{};document.querySelectorAll('[data-report-i18n]').forEach(e=>e.textContent=d[e.dataset.reportI18n]||e.textContent);document.querySelectorAll('[data-report-placeholder]').forEach(e=>e.placeholder=d[e.dataset.reportPlaceholder]||e.placeholder);const status={Confirmed:d.confirmed||'Confirmed',Pending:d.pending||'Pending',Cancelled:d.cancelled||'Cancelled',NoShow:d.noShowLabel||'No-show',CheckedIn:'Checked in',Completed:'Completed'};document.querySelectorAll('[data-report-status]').forEach(e=>e.textContent=status[e.dataset.reportStatus]||e.dataset.reportStatus);const search=document.querySelector('.report-table-search');search?.addEventListener('input',()=>{const q=search.value.toLowerCase();document.querySelectorAll('[data-report-row]').forEach(row=>row.hidden=!row.textContent.toLowerCase().includes(q))});document.getElementById('languageSelect')?.addEventListener('change',()=>location.reload())})();
+</script> }
+<script>document.getElementById('languageSelect')?.addEventListener('change',e=>localStorage.setItem('roombooking-language',e.target.value));</script>
+<script>
+(() => {
+    const lang = localStorage.getItem('roombooking-language') || 'en';
+    const words = {
+        en: { searchLabel:'Search', searchDetail:'Search meeting or organizer...', roomFilter:'Room', allRooms:'All rooms', buildingFilter:'Building', allBuildingsDetail:'All buildings', floorFilter:'Floor', allFloorsDetail:'All floors', statusFilter:'Status', allStatusesDetail:'All statuses', detailFrom:'From', detailTo:'To', resetDetail:'Reset', organizer:'Organizer' },
+        th: { searchLabel:'ค้นหา', searchDetail:'ค้นหาหัวข้อประชุมหรือผู้จอง...', roomFilter:'ห้อง', allRooms:'ทุกห้อง', buildingFilter:'อาคาร', allBuildingsDetail:'ทุกอาคาร', floorFilter:'ชั้น', allFloorsDetail:'ทุกชั้น', statusFilter:'สถานะ', allStatusesDetail:'ทุกสถานะ', detailFrom:'ตั้งแต่', detailTo:'ถึง', resetDetail:'รีเซ็ต', organizer:'ผู้จอง' },
+        lo: { searchLabel:'ຄົ້ນຫາ', searchDetail:'ຄົ້ນຫາຫົວຂໍ້ ຫຼື ຜູ້ຈອງ...', roomFilter:'ຫ້ອງ', allRooms:'ທຸກຫ້ອງ', buildingFilter:'ອາຄານ', allBuildingsDetail:'ທຸກອາຄານ', floorFilter:'ຊັ້ນ', allFloorsDetail:'ທຸກຊັ້ນ', statusFilter:'ສະຖານະ', allStatusesDetail:'ທຸກສະຖານະ', detailFrom:'ຕັ້ງແຕ່', detailTo:'ເຖິງ', resetDetail:'ລ້າງ', organizer:'ຜູ້ຈອງ' }
+    }[lang] || {};
+    document.querySelectorAll('[data-report-i18n]').forEach(element => {
+        if (words[element.dataset.reportI18n]) element.textContent = words[element.dataset.reportI18n];
+    });
+    document.querySelectorAll('[data-report-placeholder]').forEach(element => {
+        if (words[element.dataset.reportPlaceholder]) element.placeholder = words[element.dataset.reportPlaceholder];
+    });
+
+    const rows = [...document.querySelectorAll('[data-report-row]')];
+    const controls = {
+        search: document.getElementById('reportDetailSearch'),
+        room: document.getElementById('reportDetailRoom'),
+        building: document.getElementById('reportDetailBuilding'),
+        floor: document.getElementById('reportDetailFloor'),
+        status: document.getElementById('reportDetailStatus'),
+        from: document.getElementById('reportDetailFrom'),
+        to: document.getElementById('reportDetailTo')
+    };
+    const count = document.getElementById('reportVisibleCount');
+    const apply = () => {
+        const query = (controls.search?.value || '').trim().toLowerCase();
+        const from = controls.from?.value || '';
+        const to = controls.to?.value || '';
+        let visible = 0;
+        rows.forEach(row => {
+            const ok = (!query || (row.dataset.search || '').toLowerCase().includes(query))
+                && (!controls.room?.value || row.dataset.roomId === controls.room.value)
+                && (!controls.building?.value || row.dataset.building === controls.building.value)
+                && (!controls.floor?.value || row.dataset.floor === controls.floor.value)
+                && (!controls.status?.value || row.dataset.status === controls.status.value)
+                && (!from || row.dataset.date >= from)
+                && (!to || row.dataset.date <= to);
+            row.hidden = !ok;
+            if (ok) visible++;
+        });
+        if (count) count.textContent = visible;
+    };
+    Object.values(controls).forEach(control => control?.addEventListener('input', apply));
+    Object.values(controls).forEach(control => control?.addEventListener('change', apply));
+    document.getElementById('reportDetailReset')?.addEventListener('click', () => {
+        Object.values(controls).forEach(control => { if (control) control.value = ''; });
+        apply();
+    });
+})();
+</script>
+<script>
+(() => {
+    const exportLink = document.getElementById('reportExportCsv');
+    if (!exportLink) return;
+    exportLink.addEventListener('click', async (event) => {
+        event.preventDefault();
+        exportLink.setAttribute('aria-busy', 'true');
+        try {
+            const response = await fetch(exportLink.href, { credentials: 'same-origin' });
+            if (!response.ok) throw new Error(`Export failed (${response.status})`);
+            const blob = await response.blob();
+            const url = URL.createObjectURL(blob);
+            const download = document.createElement('a');
+            download.href = url;
+            download.download = 'room-bookings.csv';
+            document.body.appendChild(download);
+            download.click();
+            download.remove();
+            setTimeout(() => URL.revokeObjectURL(url), 1000);
+        } catch (error) {
+            console.error(error);
+            alert('ไม่สามารถส่งออก CSV ได้ กรุณาลองใหม่อีกครั้ง');
+        } finally {
+            exportLink.removeAttribute('aria-busy');
+        }
+    });
+})();
+</script>

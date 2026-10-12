@@ -1,0 +1,46 @@
+.organization-management {
+  max-width: 1180px;
+  margin-top: 20px;
+  padding: 26px;
+}
+
+.organization-create-form {
+  grid-template-columns: minmax(0, 1.4fr) minmax(260px, 1fr);
+  gap: 16px;
+  align-items: end;
+}
+
+.organization-create-form > button {
+  grid-column: 1 / -1;
+  justify-self: start;
+  min-width: 190px;
+}
+
+.organization-row-main {
+  min-width: 0;
+}
+
+.organization-row-main strong,
+.organization-row-main span {
+  display: block;
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 1100px) {
+  .organization-create-form {
+    grid-template-columns: 1fr;
+  }
+
+  .organization-create-form > button {
+    grid-column: auto;
+    width: 100%;
+  }
+
+  .organization-row {
+    grid-template-columns: 1fr;
+  }
+
+  .organization-row .organization-edit {
+    justify-self: start;
+  }
+}

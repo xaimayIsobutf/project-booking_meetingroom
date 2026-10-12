@@ -1,0 +1,37 @@
+.schedule-board {
+    overflow: visible !important;
+}
+
+.schedule-scroll {
+    width: 100%;
+    max-height: min(68vh, 760px);
+    overflow: auto;
+    overscroll-behavior: contain;
+    border-radius: 14px;
+    scrollbar-gutter: stable both-edges;
+}
+
+.schedule-scroll > .resource-schedule,
+.schedule-scroll > .week-time-schedule {
+    min-height: 0;
+}
+
+.schedule-scroll .resource-room-head,
+.schedule-scroll .week-time-day {
+    top: 0 !important;
+    z-index: 4;
+}
+
+.schedule-scroll .resource-time,
+.schedule-scroll .week-time-hour {
+    left: 0;
+    z-index: 3;
+}
+
+@media (max-width: 680px) {
+    .schedule-scroll {
+        max-height: calc(100vh - 285px);
+        margin-inline: -2px;
+        padding-inline: 2px;
+    }
+}

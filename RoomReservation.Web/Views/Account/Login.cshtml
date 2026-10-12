@@ -1,0 +1,129 @@
+@model LoginPageModel
+@{ ViewData["Title"] = "เข้าสู่ระบบ"; Layout = null; }
+<!doctype html>
+<html lang="th">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light dark" />
+    <title>เข้าสู่ระบบ - Startbox</title>
+    <link rel="stylesheet" href="~/css/theme.css" />
+    <link rel="stylesheet" href="~/css/components.css" />
+    <link rel="stylesheet" href="~/css/forms.css" />
+    <link rel="stylesheet" href="~/css/login.css" />
+</head>
+<body>
+    <main class="auth-page">
+        <section class="auth-card" aria-labelledby="login-title">
+            <div class="auth-toolbar">
+                <label class="language-control" for="loginLanguage"><span class="sr-only">ภาษา</span><select id="loginLanguage" aria-label="Language"><option>ไทย</option><option>English</option><option>ລາວ</option></select></label>
+                <button class="theme-control" id="loginTheme" type="button" aria-label="เปลี่ยนธีม">◐</button>
+            </div>
+
+            <img src="~/brand/logo-startbox.png" class="brand-logo" alt="Startbox logo" />
+            <h1 id="login-title" data-i18n="loginTitle">เข้าสู่ระบบ</h1>
+            <p data-i18n="loginSubtitle">Meeting room reservation</p>
+
+            <form method="post" id="loginForm" novalidate>
+                <input type="hidden" name="returnUrl" value="@Context.Request.Query["returnUrl"]" />
+                @Html.AntiForgeryToken()
+                <label for="Email"><span data-i18n="email">อีเมล</span>
+                    <input asp-for="Email" type="email" autocomplete="username" required aria-describedby="emailError" />
+                    <small id="emailError" class="field-error"></small>
+                </label>
+                <label for="Password"><span data-i18n="password">รหัสผ่าน</span>
+                    <div class="password-field">
+                        <input asp-for="Password" type="password" autocomplete="current-password" required aria-describedby="passwordError" />
+                        <button type="button" class="password-toggle" id="passwordToggle" aria-label="แสดงรหัสผ่าน">แสดง</button>
+                    </div>
+                    <small id="passwordError" class="field-error"></small>
+                </label>
+                <label for="OrganizationId"><span data-i18n="company">บริษัท</span> <small data-i18n="loginCompanyHint">(บัญชีที่อยู่ในบริษัทแล้วต้องเลือกบริษัท)</small>
+                    <select asp-for="OrganizationId" autocomplete="organization">
+                        <option value="">ไม่เลือกบริษัท</option>
+                        @foreach (var org in Model.Organizations)
+                        {
+                            <option value="@org.Id">@org.Name</option>
+                        }
+                    </select>
+                    <small id="organizationError" class="field-error"></small>
+                </label>
+                <div class="login-options">
+                    <label class="remember-option"><input asp-for="RememberMe" /> <span data-i18n="remember">จดจำการเข้าสู่ระบบ</span></label>
+                    <a href="/forgot-password" data-i18n="forgot">ลืมรหัสผ่าน?</a>
+                </div>
+                @if (Model.Error is not null)
+                {
+                    <p class="validation-summary" role="alert">@Model.Error</p>
+                }
+                <button class="button" id="loginButton" type="submit"><span class="button-label" data-i18n="login">เข้าสู่ระบบ</span><span class="button-loading" aria-hidden="true" data-i18n="loading">กำลังเข้าสู่ระบบ...</span></button>
+            </form>
+
+            @if (Model.GoogleConfigured)
+            {
+                <div class="external-login" aria-label="ตัวเลือกการเข้าสู่ระบบเพิ่มเติม">
+                    <span class="external-login-divider" data-i18n="or">หรือ</span>
+                    <a class="button button-secondary" id="googleLogin" href="/Account/GoogleLogin" data-i18n="googleLogin">เข้าสู่ระบบด้วย Google</a>
+                </div>
+            }
+
+            <div class="auth-register-panel">
+                <span data-i18n="registerQuestion">ยังไม่มีบัญชีใช่ไหม?</span>
+                <a href="/register" data-i18n="register">สมัครสมาชิก</a>
+            </div>
+            <p class="support-text"><span data-i18n="support">มีปัญหาในการเข้าสู่ระบบ?</span> <a href="mailto:admin@startbox.com" data-i18n="contact">ติดต่อผู้ดูแลระบบ</a></p>
+        </section>
+    </main>
+
+    <script src="~/js/login-i18n.js"></script>
+    <script>
+        const body = document.body;
+        body.dataset.theme = localStorage.getItem('theme') || 'light';
+        document.getElementById('loginTheme').addEventListener('click', () => {
+            body.dataset.theme = body.dataset.theme === 'dark' ? 'light' : 'dark';
+            localStorage.setItem('theme', body.dataset.theme);
+        });
+        document.getElementById('passwordToggle').addEventListener('click', e => {
+            const input = document.getElementById('Password');
+            const shown = input.type === 'text';
+            input.type = shown ? 'password' : 'text';
+            const t = window.authTranslations || {};
+            e.currentTarget.textContent = shown ? (t.show || 'แสดง') : (t.hide || 'ซ่อน');
+            e.currentTarget.setAttribute('aria-label', shown ? (t.show || 'แสดง') : (t.hide || 'ซ่อน'));
+        });
+        const form = document.getElementById('loginForm');
+        form.addEventListener('submit', e => {
+            let valid = true;
+            const t = window.authTranslations || {};
+            [['Email', 'emailError', t.emailRequired || 'กรุณากรอกอีเมล'], ['Password', 'passwordError', t.passwordRequired || 'กรุณากรอกรหัสผ่าน']].forEach(([id, error, message]) => {
+                const input = document.getElementById(id);
+                const target = document.getElementById(error);
+                target.textContent = input.value ? ((id === 'Email' && !input.validity.valid) ? (t.invalidEmail || 'รูปแบบอีเมลไม่ถูกต้อง') : '') : message;
+                if (target.textContent) valid = false;
+            });
+            if (!valid) {
+                e.preventDefault();
+                return;
+            }
+            document.getElementById('loginButton').classList.add('loading');
+            document.getElementById('loginButton').disabled = true;
+        });
+    </script>
+    @if (Model.GoogleConfigured)
+    {
+        <script>
+            const googleLink = document.getElementById('googleLogin');
+            const orgSelect = document.getElementById('OrganizationId');
+            const updateGoogleLink = () => {
+                const url = new URL('/Account/GoogleLogin', window.location.origin);
+                if (orgSelect.value) url.searchParams.set('organizationId', orgSelect.value);
+                const returnUrl = new URLSearchParams(window.location.search).get('returnUrl');
+                if (returnUrl) url.searchParams.set('returnUrl', returnUrl);
+                googleLink.href = url.toString();
+            };
+            orgSelect.addEventListener('change', updateGoogleLink);
+            updateGoogleLink();
+        </script>
+    }
+</body>
+</html>
