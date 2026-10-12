@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpOverrides;
+using System.Text.RegularExpressions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
@@ -107,7 +108,11 @@ var app = builder.Build();
 app.UseForwardedHeaders();
 if (builder.Configuration.GetValue("Database:AutoMigrate", false))
 {
-    Console.WriteLine($"RoomReservation.Web migrating database: {connectionString.Replace("Password=postgres", "Password=***", StringComparison.OrdinalIgnoreCase)}");
+    var safeConnectionString = Regex.Replace(
+        connectionString,
+        @"(?i)(Password\s*=\s*)[^;]*",
+        "$1***");
+    Console.WriteLine($"RoomReservation.Web migrating database: {safeConnectionString}");
     await using var scope = app.Services.CreateAsyncScope();
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     await MigrationRunner.Run(db);
