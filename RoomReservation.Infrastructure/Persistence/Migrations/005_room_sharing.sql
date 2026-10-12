@@ -1,4 +1,0 @@
-CREATE TABLE IF NOT EXISTS room_accesses (id uuid PRIMARY KEY, room_id uuid NOT NULL REFERENCES rooms(id) ON DELETE CASCADE, organization_id uuid NOT NULL REFERENCES organizations(id) ON DELETE CASCADE, owner_organization_id uuid NOT NULL REFERENCES organizations(id) ON DELETE CASCADE, can_view boolean NOT NULL DEFAULT true, can_book boolean NOT NULL DEFAULT false, requires_approval boolean NOT NULL DEFAULT true, created_at timestamptz NOT NULL, UNIQUE(room_id,organization_id));
-ALTER TABLE room_accesses ENABLE ROW LEVEL SECURITY;
-DROP POLICY IF EXISTS tenant_isolation ON room_accesses;
-CREATE POLICY tenant_isolation ON room_accesses USING (owner_organization_id = nullif(current_setting('app.current_org_id', true), '')::uuid OR organization_id = nullif(current_setting('app.current_org_id', true), '')::uuid) WITH CHECK (owner_organization_id = nullif(current_setting('app.current_org_id', true), '')::uuid);

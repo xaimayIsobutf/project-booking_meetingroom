@@ -1,2 +1,0 @@
-DROP POLICY IF EXISTS tenant_isolation ON rooms;
-CREATE POLICY tenant_isolation ON rooms USING (organization_id = nullif(current_setting('app.current_org_id', true), '')::uuid OR EXISTS (SELECT 1 FROM room_accesses a WHERE a.room_id = rooms.id AND a.organization_id = nullif(current_setting('app.current_org_id', true), '')::uuid AND a.can_view)) WITH CHECK (organization_id = nullif(current_setting('app.current_org_id', true), '')::uuid);
