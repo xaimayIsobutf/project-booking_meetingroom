@@ -1,0 +1,115 @@
+@model RegisterPageModel
+@{ ViewData["Title"] = "สมัครสมาชิก"; Layout = null; }
+<!doctype html>
+<html lang="th">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>สมัครสมาชิก - Startbox</title>
+    <link rel="stylesheet" href="~/css/theme.css" />
+    <link rel="stylesheet" href="~/css/components.css" />
+    <link rel="stylesheet" href="~/css/forms.css" />
+    <link rel="stylesheet" href="~/css/login.css" />
+</head>
+<body>
+    <main class="auth-page">
+        <section class="auth-card" aria-labelledby="register-title">
+            <div class="auth-toolbar">
+                <span class="eyebrow">STARTBOX</span>
+                <label class="language-control" for="registerLanguage"><span class="sr-only">ภาษา</span><select id="registerLanguage" aria-label="Language"><option>ไทย</option><option>English</option><option>ລາວ</option></select></label>
+                <button class="theme-control" id="registerTheme" type="button" aria-label="เปลี่ยนธีม">◐</button>
+            </div>
+            <img src="~/brand/logo-startbox.png" class="brand-logo" alt="Startbox logo" />
+            <h1 id="register-title" data-i18n="registerTitle">สมัครสมาชิก</h1>
+            <p data-i18n="registerSubtitle">สมัครบัญชีได้โดยไม่ต้องเลือกบริษัท</p>
+
+            <form method="post" action="/register" id="registerForm" novalidate>
+                @Html.AntiForgeryToken()
+                <label for="DisplayName"><span data-i18n="name">ชื่อ</span>
+                    <input asp-for="DisplayName" autocomplete="name" required />
+                </label>
+                <label for="Email"><span data-i18n="email">อีเมล</span>
+                    <input asp-for="Email" type="email" autocomplete="email" required />
+                </label>
+                <div class="registration-company-note" role="note">
+                    <div class="registration-company-note-head">
+                        <strong data-i18n="company">บริษัท</strong>
+                        <span class="registration-company-optional" data-i18n="companyOptional">ไม่บังคับ</span>
+                    </div>
+                    <span data-i18n="companyAccessHint">สมัครได้โดยไม่ต้องเลือกบริษัท — เลือกภายหลัง หรือใช้คำเชิญจากผู้ดูแลบริษัท</span>
+                </div>
+                <label for="Password"><span data-i18n="password">รหัสผ่าน</span>
+                    <span class="password-field"><input asp-for="Password" type="password" autocomplete="new-password" minlength="8" required /><button type="button" class="password-toggle" data-password-target="Password" data-i18n="show">แสดง</button></span>
+                    <small data-i18n="passwordHint">อย่างน้อย 8 ตัวอักษร ต้องมีตัวอักษรและตัวเลข</small>
+                    <ul class="password-checklist" id="passwordChecklist" aria-live="polite">
+                        <li data-rule="length" data-i18n="passwordRuleLength">อย่างน้อย 8 ตัวอักษร</li>
+                        <li data-rule="letter" data-i18n="passwordRuleLetter">มีตัวอักษร</li>
+                        <li data-rule="number" data-i18n="passwordRuleNumber">มีตัวเลข</li>
+                    </ul>
+                </label>
+                <label for="ConfirmPassword"><span data-i18n="confirmPassword">ยืนยันรหัสผ่าน</span>
+                    <span class="password-field"><input asp-for="ConfirmPassword" type="password" autocomplete="new-password" minlength="8" required /><button type="button" class="password-toggle" data-password-target="ConfirmPassword" data-i18n="show">แสดง</button></span>
+                </label>
+                <label class="terms-consent" for="AcceptTerms">
+                    <input asp-for="AcceptTerms" type="checkbox" required />
+                    <span><span data-i18n="acceptTerms">ฉันยอมรับ</span> <a href="/terms" target="_blank" rel="noopener" data-i18n="terms">ข้อกำหนดการใช้งาน</a> <span data-i18n="and">และ</span> <a href="/privacy" target="_blank" rel="noopener" data-i18n="privacy">นโยบายความเป็นส่วนตัว</a></span>
+                </label>
+                @if (Model.Error is not null)
+                {
+                    <p class="validation-summary" role="alert">@Model.Error</p>
+                }
+                <button class="button" type="submit" data-i18n="createAccount">สร้างบัญชี</button>
+            </form>
+
+            @if (Model.GoogleConfigured)
+            {
+                <div class="external-login" aria-label="ตัวเลือกการสมัครสมาชิกเพิ่มเติม">
+                    <span class="external-login-divider" data-i18n="or">หรือ</span>
+                    <a class="button button-secondary" id="googleRegister" href="/Account/GoogleRegister" data-i18n="googleRegister">สมัครสมาชิกด้วย Google</a>
+                </div>
+            }
+
+            <p class="support-text"><span data-i18n="existingAccount">มีบัญชีแล้ว?</span> <a href="/Account/Login" data-i18n="backToLogin">กลับไปเข้าสู่ระบบ</a></p>
+        </section>
+    </main>
+
+    <script>
+        const body = document.body;
+        body.dataset.theme = localStorage.getItem('theme') || 'light';
+        document.getElementById('registerTheme').addEventListener('click', () => {
+            body.dataset.theme = body.dataset.theme === 'dark' ? 'light' : 'dark';
+            localStorage.setItem('theme', body.dataset.theme);
+        });
+        document.querySelectorAll('[data-password-target]').forEach(toggle => toggle.addEventListener('click', () => {
+            const password = document.getElementById(toggle.dataset.passwordTarget);
+            password.type = password.type === 'password' ? 'text' : 'password';
+            const key = password.type === 'text' ? 'hide' : 'show';
+            toggle.textContent = (window.authTranslations || {})[key] || (key === 'hide' ? 'ซ่อน' : 'แสดง');
+            toggle.setAttribute('aria-label', toggle.textContent);
+        }));
+        const password = document.getElementById('Password');
+        const checklist = document.getElementById('passwordChecklist');
+        const updatePasswordChecklist = () => {
+            const value = password.value;
+            const rules = { length: value.length >= 8, letter: /[A-Za-zก-๙ກ-ຮ]/.test(value), number: /\d/.test(value) };
+            Object.entries(rules).forEach(([rule, valid]) => checklist.querySelector(`[data-rule="${rule}"]`).classList.toggle('valid', valid));
+        };
+        password.addEventListener('input', updatePasswordChecklist);
+        document.getElementById('registerForm').addEventListener('submit', e => {
+            const password = document.getElementById('Password');
+            const confirmPassword = document.getElementById('ConfirmPassword');
+            if (!e.currentTarget.checkValidity() || password.value !== confirmPassword.value) {
+                e.preventDefault();
+                if (password.value !== confirmPassword.value) alert((window.authTranslations || {}).passwordMismatch || 'รหัสผ่านไม่ตรงกัน');
+            }
+        });
+        document.getElementById('googleRegister')?.addEventListener('click', e => {
+            if (!document.getElementById('AcceptTerms').checked) {
+                e.preventDefault();
+                alert((window.authTranslations || {}).termsRequired || 'กรุณายอมรับข้อกำหนดก่อนสมัคร');
+            }
+        });
+    </script>
+    <script src="~/js/login-i18n.js"></script>
+</body>
+</html>

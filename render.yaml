@@ -1,0 +1,24 @@
+services:
+  - type: web
+    name: bookingroom
+    runtime: docker
+    plan: free
+    dockerfilePath: ./RoomReservation.Web/Dockerfile
+    dockerContext: .
+    dockerCommand: "/bin/sh -c 'exec dotnet RoomReservation.Web.dll --urls http://0.0.0.0:$PORT'"
+    healthCheckPath: /health
+    envVars:
+      - key: ASPNETCORE_ENVIRONMENT
+        value: Production
+      - key: Database__AutoMigrate
+        value: "true"
+      - key: Authentication__Google__SecureCookies
+        value: "true"
+      - key: ConnectionStrings__Default
+        sync: false
+      - key: Jwt__Key
+        sync: false
+      - key: Authentication__Google__ClientId
+        sync: false
+      - key: Authentication__Google__ClientSecret
+        sync: false

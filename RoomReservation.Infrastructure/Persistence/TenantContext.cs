@@ -1,0 +1,1 @@
+namespace RoomReservation.Infrastructure.Persistence;public static class TenantContext{static readonly AsyncLocal<Guid?> Current=new();public static Guid? OrganizationId{get=>Current.Value;set=>Current.Value=value;}}

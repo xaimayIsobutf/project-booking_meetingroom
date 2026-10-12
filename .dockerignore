@@ -1,0 +1,9 @@
+.git
+**/bin
+**/obj
+RoomReservation.RoomDisplay
+docs
+*.user
+*.suo
+**/bin/
+**/obj/
