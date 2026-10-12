@@ -12,4 +12,4 @@ WORKDIR /app
 COPY --from=build /app/publish .
 ENV ASPNETCORE_URLS=http://+:8080
 EXPOSE 8080
-ENTRYPOINT ["dotnet", "RoomReservation.Web.dll", "--urls", "http://0.0.0.0:8080"]
+ENTRYPOINT ["sh", "-c", "exec dotnet RoomReservation.Web.dll --urls http://0.0.0.0:${PORT:-8080}"]
