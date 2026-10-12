@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
@@ -27,6 +28,12 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddSignalR();
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+    options.KnownNetworks.Clear();
+    options.KnownProxies.Clear();
+});
 builder.Services.AddDataProtection()
     .PersistKeysToFileSystem(new DirectoryInfo("/var/lib/roomreservation/keys"))
     .SetApplicationName("RoomReservation");
@@ -97,6 +104,7 @@ if (!string.IsNullOrWhiteSpace(googleClientId) && !string.IsNullOrWhiteSpace(goo
 }
 
 var app = builder.Build();
+app.UseForwardedHeaders();
 if (builder.Configuration.GetValue("Database:AutoMigrate", false))
 {
     Console.WriteLine($"RoomReservation.Web migrating database: {connectionString.Replace("Password=postgres", "Password=***", StringComparison.OrdinalIgnoreCase)}");
